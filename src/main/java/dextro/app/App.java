@@ -1,6 +1,5 @@
 package dextro.app;
 
-import java.util.Scanner;
 import dextro.command.Command;
 import dextro.command.CommandResult;
 import dextro.exception.ParseException;
@@ -10,12 +9,12 @@ import dextro.ui.Ui;
 
 public class App {
 
-    private final Scanner scanner;
     private final Parser parser;
     private final StudentDatabase db;
+    private final Ui ui;
 
-    public App(Scanner scanner, Parser parser, StudentDatabase db) {
-        this.scanner = scanner;
+    public App(Ui ui, Parser parser, StudentDatabase db) {
+        this.ui = ui;
         this.parser = parser;
         this.db = db;
     }
@@ -27,7 +26,7 @@ public class App {
 
         while (isRunning) {
             System.out.print("> ");
-            String input = scanner.nextLine();
+            String input = ui.readCommand();
 
             try {
                 Command command = parser.parse(input);
