@@ -28,6 +28,9 @@ public class Ui {
      * @return the line of text entered by the user
      */
     public String readCommand() {
+        if (!scanner.hasNextLine()) {
+            return null;
+        }
         return scanner.nextLine();
     }
 

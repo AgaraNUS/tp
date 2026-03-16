@@ -20,28 +20,26 @@ public class App {
     }
 
     public void run() {
-        boolean isRunning = true;
-
         System.out.println("Welcome to Dextro Student Manager!");
 
-        while (isRunning) {
+        while (true) {
             System.out.print("> ");
-            String input = ui.readCommand();
 
+            String input = ui.readCommand();
+            if (input == null) {
+                break;
+            }
             try {
                 Command command = parser.parse(input);
                 CommandResult result = command.execute(db);
                 Ui.show(result.getMessage());
 
                 if (result.shouldExit()) {
-                    isRunning = false;
+                    break;
                 }
 
             } catch (ParseException e) {
                 Ui.show("Error: " + e.getMessage());
-            } catch (Exception e) {
-                Ui.show("Unexpected error: " + e.getMessage());
-                e.printStackTrace();
             }
         }
     }

@@ -13,7 +13,7 @@ import dextro.exception.ParseException;
 public class Parser {
 
     public Command parse(String userInput) throws ParseException {
-        if (userInput == null || userInput.isBlank()) {
+        if (userInput.isBlank()) {
             throw new ParseException("Input cannot be empty");
         }
 
