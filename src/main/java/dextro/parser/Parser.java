@@ -1,6 +1,10 @@
 package dextro.parser;
 
-import dextro.command.*;
+import dextro.command.Command;
+import dextro.command.CreateCommand;
+import dextro.command.DeleteCommand;
+import dextro.command.ExitCommand;
+import dextro.command.ListCommand;
 import dextro.command.module.AddCommand;
 import dextro.command.module.RemoveCommand;
 import dextro.config.Config;
@@ -18,13 +22,13 @@ public class Parser {
         String arguments = split.length > 1 ? split[1].trim() : "";
 
         return switch (commandWord) {
-            case Config.CMD_CREATE -> parseCreate(arguments);
-            case Config.CMD_DELETE -> parseDelete(arguments);
-            case Config.CMD_ADD -> parseAdd(arguments);
-            case Config.CMD_REMOVE -> parseRemove(arguments);
-            case Config.CMD_LIST -> new ListCommand();
-            case Config.CMD_EXIT -> new ExitCommand();
-            default -> throw new ParseException("Unknown command: " + commandWord);
+        case Config.CMD_CREATE -> parseCreate(arguments);
+        case Config.CMD_DELETE -> parseDelete(arguments);
+        case Config.CMD_ADD -> parseAdd(arguments);
+        case Config.CMD_REMOVE -> parseRemove(arguments);
+        case Config.CMD_LIST -> new ListCommand();
+        case Config.CMD_EXIT -> new ExitCommand();
+        default -> throw new ParseException("Unknown command: " + commandWord);
         };
     }
 
