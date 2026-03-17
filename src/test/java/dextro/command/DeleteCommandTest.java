@@ -2,11 +2,15 @@ package dextro.command;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+//import static org.junit.jupiter.api.Assertions.*;
 
 class DeleteCommandTest {
 
     @Test
     void execute() {
+    }
+
+    @Test
+    void testExecute() {
     }
 }
