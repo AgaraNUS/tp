@@ -1,7 +1,5 @@
 package dextro.ui;
 
-import dextro.command.CommandResult;
-
 import java.util.Scanner;
 
 /**
@@ -13,9 +11,9 @@ import java.util.Scanner;
  */
 public class Ui {
 
-    private final Scanner scanner = new Scanner(System.in);
-
     private static final String line = "-".repeat(100);
+
+    private final Scanner scanner = new Scanner(System.in);
 
     /**
      * Prints a separator line to the console.
@@ -30,6 +28,9 @@ public class Ui {
      * @return the line of text entered by the user
      */
     public String readCommand() {
+        if (!scanner.hasNextLine()) {
+            return null;
+        }
         return scanner.nextLine();
     }
 
@@ -41,18 +42,6 @@ public class Ui {
     public static void show(String s) {
         line();
         System.out.println(s);
-        line();
-    }
-
-    /**
-     * Displays the message contained in a {@code CommandResult} object,
-     * surrounded by separator lines.
-     *
-     * @param r the response whose message will be displayed
-     */
-    public static void show(CommandResult r) {
-        line();
-        System.out.println(r.getMessage());
         line();
     }
 }

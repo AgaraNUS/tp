@@ -1,49 +1,45 @@
 package dextro.app;
 
-import dextro.parser.Parser;
 import dextro.command.Command;
 import dextro.command.CommandResult;
-import dextro.model.record.StudentDatabase;
 import dextro.exception.ParseException;
+import dextro.model.record.StudentDatabase;
+import dextro.parser.Parser;
 import dextro.ui.Ui;
-
-import java.util.Scanner;
 
 public class App {
 
-    private final Scanner scanner;
     private final Parser parser;
     private final StudentDatabase db;
+    private final Ui ui;
 
-    public App(Scanner scanner, Parser parser, StudentDatabase db) {
-        this.scanner = scanner;
+    public App(Ui ui, Parser parser, StudentDatabase db) {
+        this.ui = ui;
         this.parser = parser;
         this.db = db;
     }
 
     public void run() {
-        boolean isRunning = true;
-
         System.out.println("Welcome to Dextro Student Manager!");
 
-        while (isRunning) {
+        while (true) {
             System.out.print("> ");
-            String input = scanner.nextLine();
 
+            String input = ui.readCommand();
+            if (input == null) {
+                break;
+            }
             try {
                 Command command = parser.parse(input);
                 CommandResult result = command.execute(db);
                 Ui.show(result.getMessage());
 
                 if (result.shouldExit()) {
-                    isRunning = false;
+                    break;
                 }
 
             } catch (ParseException e) {
                 Ui.show("Error: " + e.getMessage());
-            } catch (Exception e) {
-                Ui.show("Unexpected error: " + e.getMessage());
-                e.printStackTrace();
             }
         }
     }
