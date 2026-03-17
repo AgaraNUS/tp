@@ -14,7 +14,6 @@ public class DeleteCommand implements Command {
     @Override
     public CommandResult execute(StudentDatabase db) throws CommandException {
         try {
-            // Subtract 1 to convert the 1-based user input to the 0-based ArrayList index
             Student deletedStudent = db.removeStudent(index - 1);
             return new CommandResult("Successfully deleted student:\n" + deletedStudent.toString());
 
