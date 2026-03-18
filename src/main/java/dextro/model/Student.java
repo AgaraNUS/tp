@@ -52,6 +52,18 @@ public class Student {
                 getCourse();
     }
 
+    public void addModule(Module module) {
+        modules.add(module);
+    }
+
+    public boolean removeModule(String moduleCode) {
+        return modules.removeIf(m -> m.getCode().equalsIgnoreCase(moduleCode));
+    }
+
+    public List<Module> getModules() {
+        return modules;
+    }
+
     // Builder class
     public static class Builder {
         private final String name; // compulsory
@@ -91,4 +103,5 @@ public class Student {
             return new Student(this);
         }
     }
+
 }
