@@ -8,6 +8,7 @@ import dextro.command.ListCommand;
 import dextro.command.StatusCommand;
 import dextro.command.module.AddCommand;
 import dextro.command.module.RemoveCommand;
+import dextro.command.EditCommand;
 import dextro.config.Config;
 import dextro.exception.ParseException;
 import dextro.model.Grade;
@@ -31,6 +32,7 @@ public class Parser {
         case Config.CMD_LIST -> new ListCommand();
         case Config.CMD_STATUS -> parseStatus(arguments);
         case Config.CMD_EXIT -> new ExitCommand();
+        case Config.CMD_EDIT -> parseEdit(arguments);
         default -> throw new ParseException("Unknown command: " + commandWord);
         };
     }
@@ -119,6 +121,49 @@ public class Parser {
         return new RemoveCommand(index, moduleCode);
     }
 
+    private Command parseEdit(String args) throws ParseException {
+        if (args == null || args.isEmpty()) {
+            throw new ParseException("Index is compulsory for edit command");
+        }
+        int index;
+        try {
+            int sepIndex = args.indexOf(" ");
+            String indexStr = (sepIndex == -1) ? args : args.substring(0, sepIndex);
+            index = Integer.parseInt(indexStr.trim());
+        } catch (NumberFormatException e) {
+            throw new ParseException("Invalid index to edit.");
+        }
+
+        int sepIndex = args.indexOf(" ");
+        String attributes = (sepIndex == -1) ? "" : args.substring(sepIndex + 1);
+
+        ArgumentTokenizer tokenizer = new ArgumentTokenizer(attributes, "n/", "p/", "e/", "a/", "c/", "m/");
+        String name = tokenizer.getValue("n/");
+        String phone = tokenizer.getValue("p/");
+        String email = tokenizer.getValue("e/");
+        String address = tokenizer.getValue("a/");
+        String course = tokenizer.getValue("c/");
+        String moduleValue = tokenizer.getValue("m/"); 
+
+        // parse moduleCode and grade out of "CODE/GRADE"
+        String moduleCode = null;
+        Grade grade = null;
+        if (moduleValue != null) {
+            String[] parts = moduleValue.split("/", 2);
+            if (parts.length != 2 || parts[0].isBlank() || parts[1].isBlank()) {
+                throw new ParseException("Module format must be CODE/GRADE (e.g., m/CS2113/A)");
+            }
+            moduleCode = parts[0].trim();
+            try {
+                grade = Grade.fromString(parts[1].trim());
+            } catch (IllegalArgumentException e) {
+                throw new ParseException("Invalid grade: " + parts[1]);
+            }
+        }
+
+        return new EditCommand(index - 1, name, phone, email, address, course, moduleCode, grade);
+    }
+    
     private Command parseStatus(String args) throws ParseException {
         try {
             int index = Integer.parseInt(args);

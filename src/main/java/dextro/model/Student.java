@@ -99,7 +99,7 @@ public class Student {
 
     // Builder class
     public static class Builder {
-        private final String name; // compulsory
+        private String name; // compulsory
         private String phone;
         private String email;
         private String address;
@@ -110,6 +110,21 @@ public class Student {
                 throw new IllegalArgumentException("Name is compulsory");
             }
             this.name = name;
+        }
+
+        public Builder(Student existing) {
+            this.name = existing.name;     
+            this.phone = existing.phone;
+            this.email = existing.email;
+            this.address = existing.address;
+            this.course = existing.course;
+        }
+
+        public Builder name(String name) {
+            if (name != null && !name.isBlank()) {
+                this.name = name;  
+            }
+            return this;
         }
 
         public Builder phone(String phone) {
