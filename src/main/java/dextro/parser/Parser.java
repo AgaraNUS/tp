@@ -6,6 +6,7 @@ import dextro.command.CreateCommand;
 import dextro.command.DeleteCommand;
 import dextro.command.EditCommand;
 import dextro.command.ExitCommand;
+import dextro.command.FindCommand;
 import dextro.command.SearchCommand;
 import dextro.command.ListCommand;
 import dextro.command.StatusCommand;
@@ -41,6 +42,7 @@ public class Parser {
         case Config.CMD_STATUS -> parseStatus(arguments);
         case Config.CMD_UNDO -> parseUndo();
         case Config.CMD_SEARCH -> parseSearch(arguments);
+        case Config.CMD_FIND -> parseFind(arguments);
         case Config.CMD_EXIT -> new ExitCommand();
         case Config.CMD_EDIT -> parseEdit(arguments);
         default -> throw new ParseException("Unknown command: " + commandWord);
@@ -261,6 +263,13 @@ public class Parser {
             // If neither prefix is found, treat the entire argument as a general keyword search
             return new SearchCommand(args.trim(), null, null);
         }
+    }
+
+    private Command parseFind(String args) throws ParseException {
+        if (args == null || args.isBlank()) {
+            throw new ParseException("Find query cannot be empty.");
+        }
+        return new FindCommand(args.trim());
     }
 
     private Command parseUndo() throws ParseException {
