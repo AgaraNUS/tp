@@ -1,5 +1,6 @@
 package dextro.command.module;
 
+import dextro.app.Storage;
 import dextro.command.Command;
 import dextro.command.CommandResult;
 import dextro.exception.CommandException;
@@ -19,7 +20,7 @@ public class RemoveCommand implements Command {
     }
 
     @Override
-    public CommandResult execute(StudentDatabase db) {
+    public CommandResult execute(StudentDatabase db, Storage storage) {
 
         if (index < 1 || index > db.getStudentCount()) {
             return new CommandResult("Invalid student index");
@@ -39,6 +40,7 @@ public class RemoveCommand implements Command {
         if (removed) {
             return new CommandResult("Removed module " + moduleCode + " from " + student.getName());
         }
+        storage.saveStudentList(db);
 
         return new CommandResult(
                 "Module " + moduleCode + " not found for " + student.getName()
@@ -48,7 +50,7 @@ public class RemoveCommand implements Command {
     }
 
     @Override
-    public CommandResult undo(StudentDatabase db) throws CommandException {
+    public CommandResult undo(StudentDatabase db, Storage storage) throws CommandException {
         if (removedModule == null) {
             throw new CommandException("Cannot undo: remove command was not executed or module was not found");
         }

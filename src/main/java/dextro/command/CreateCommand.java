@@ -1,5 +1,6 @@
 package dextro.command;
 
+import dextro.app.Storage;
 import dextro.exception.CommandException;
 import dextro.model.Student;
 import dextro.model.record.StudentDatabase;
@@ -22,7 +23,7 @@ public class CreateCommand implements Command {
     }
 
     @Override
-    public CommandResult execute(StudentDatabase db) {
+    public CommandResult execute(StudentDatabase db, Storage storage) {
         Student student = new Student.Builder(name)
                 .phone(phone)
                 .email(email)
@@ -31,6 +32,7 @@ public class CreateCommand implements Command {
                 .build();
 
         db.addStudent(student);
+        storage.saveStudentList(db);
         createdIndex = db.getStudentCount() - 1;
 
         String message = String.format("Student created: %s", student.getName());
@@ -38,7 +40,7 @@ public class CreateCommand implements Command {
     }
 
     @Override
-    public CommandResult undo(StudentDatabase db) throws CommandException {
+    public CommandResult undo(StudentDatabase db, Storage storage) throws CommandException {
         if (createdIndex == -1) {
             throw new CommandException("Cannot undo: create command was not executed");
         }

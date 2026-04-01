@@ -1,5 +1,6 @@
 package dextro.command;
 
+import dextro.app.Storage;
 import dextro.exception.CommandException;
 import dextro.model.Student;
 import dextro.model.record.StudentDatabase;
@@ -14,10 +15,11 @@ public class DeleteCommand implements Command {
     }
 
     @Override
-    public CommandResult execute(StudentDatabase db) throws CommandException {
+    public CommandResult execute(StudentDatabase db, Storage storage) throws CommandException {
         try {
             deletedIndex = index - 1;
             deletedStudent = db.removeStudent(deletedIndex);
+            storage.saveStudentList(db);
             return new CommandResult("Successfully deleted student:\n" + deletedStudent.toString());
 
         } catch (IndexOutOfBoundsException e) {
@@ -26,7 +28,7 @@ public class DeleteCommand implements Command {
     }
 
     @Override
-    public CommandResult undo(StudentDatabase db) throws CommandException {
+    public CommandResult undo(StudentDatabase db, Storage storage) throws CommandException {
         if (deletedStudent == null || deletedIndex == -1) {
             throw new CommandException("Cannot undo: delete command was not executed");
         }

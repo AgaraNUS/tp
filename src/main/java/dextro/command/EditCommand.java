@@ -1,5 +1,6 @@
 package dextro.command;
 
+import dextro.app.Storage;
 import dextro.exception.CommandException;
 import dextro.model.Student;
 import dextro.model.Grade;
@@ -30,7 +31,7 @@ public class EditCommand implements Command {
     }
 
     @Override
-    public CommandResult execute(StudentDatabase db) throws CommandException{
+    public CommandResult execute(StudentDatabase db, Storage storage) throws CommandException{
         int studentCount = db.getStudentCount();
         if (index > studentCount || index < 0) {
             throw new CommandException("Index should be within range.");
@@ -63,11 +64,12 @@ public class EditCommand implements Command {
         }
 
         db.updateStudent(index, updatedStudent);
+        storage.saveStudentList(db);
         return new CommandResult("Student updated successfully.");
     }
 
     @Override
-    public CommandResult undo(StudentDatabase db) throws CommandException {
+    public CommandResult undo(StudentDatabase db, Storage storage) throws CommandException {
         if (previousStudent == null) {
             throw new CommandException("Cannot undo: edit command was not executed");
         }

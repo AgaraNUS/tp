@@ -1,5 +1,6 @@
 package dextro.command.module;
 
+import dextro.app.Storage;
 import dextro.command.Command;
 import dextro.command.CommandResult;
 import dextro.exception.CommandException;
@@ -22,7 +23,7 @@ public class AddCommand implements Command {
     }
 
     @Override
-    public CommandResult execute(StudentDatabase db) {
+    public CommandResult execute(StudentDatabase db, Storage storage) {
         if (index < 1 || index > db.getStudentCount()) {
             return new CommandResult("Invalid student index");
         }
@@ -31,6 +32,7 @@ public class AddCommand implements Command {
 
         Module module = new Module(moduleCode, grade);
         student.addModule(module);
+        storage.saveStudentList(db);
         wasExecuted = true;
 
         return new CommandResult(
@@ -39,7 +41,7 @@ public class AddCommand implements Command {
     }
 
     @Override
-    public CommandResult undo(StudentDatabase db) throws CommandException {
+    public CommandResult undo(StudentDatabase db, Storage storage) throws CommandException {
         if (!wasExecuted) {
             throw new CommandException("Cannot undo: add command was not executed");
         }
