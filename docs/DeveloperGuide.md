@@ -8,6 +8,59 @@
 
 {Describe the design and implementation of the product. Use UML diagrams and short code snippets where applicable.}
 
+### Implementation: Matthias
+
+#### Status Command
+
+The `StatusCommand` allows users to view detailed information about a specific student, including their CAP, total MCs completed, and progress status.
+
+##### Class Diagram
+
+![StatusCommandClassDiagram](images/StatusCommandClassDiagram.png)
+
+The class diagram shows the relationship between `StatusCommand` and other components:
+- `StatusCommand` implements the `Command` interface
+- It interacts with `StudentDatabase` to retrieve student information
+- It uses the `Storage` component for persistence operations
+- Returns a `CommandResult` containing the status information
+
+##### Sequence Diagram
+
+![StatusCommandSequence](images/StatusCommandSequence.png)
+
+The sequence diagram illustrates the execution flow:
+1. User executes the status command with a student index
+2. `StatusCommand.execute()` is called with the `StudentDatabase` and `Storage`
+3. The command validates the index and retrieves the student
+4. Student information (CAP, MCs, status) is calculated and formatted
+5. A `CommandResult` is returned with the formatted status message
+
+#### Undo Command
+
+The `UndoCommand` allows users to revert the last undoable command that modified the student database.
+
+##### Class Diagram
+
+![UndoCommandClassDiagram](images/UndoCommandClassDiagram.png)
+
+The class diagram shows the relationship between `UndoCommand` and other components:
+- `UndoCommand` implements the `Command` interface
+- It maintains a reference to `CommandHistory` which tracks executed commands
+- It interacts with `StudentDatabase` and `Storage` to perform the undo operation
+- Returns a `CommandResult` indicating the undo operation result
+
+##### Sequence Diagram
+
+![UndoCommandSequence](images/UndoCommandSequence.png)
+
+The sequence diagram illustrates the execution flow:
+1. User executes the undo command
+2. `UndoCommand.execute()` is called with the `StudentDatabase` and `Storage`
+3. The command checks if there are any commands to undo in the `CommandHistory`
+4. If available, the last command is popped from the history
+5. The `undo()` method of the last command is invoked
+6. A `CommandResult` is returned indicating the success or failure of the undo operation
+
 
 ## Product scope
 ### Target user profile
