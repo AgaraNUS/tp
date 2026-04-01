@@ -14,13 +14,13 @@ public class ExitCommand implements Command{
         return null;
     }
 
+    public CommandResult execute(StudentDatabase studentDatabase, Storage storage) {
+        return new CommandResult("Goodbye!", true);
+    }
+
     @Override
     public CommandResult undo(StudentDatabase db) throws CommandException {
         return null;
-    }
-
-    public CommandResult execute(StudentDatabase studentDatabase, Storage storage) {
-        return new CommandResult("Goodbye!", true);
     }
 
     @Override

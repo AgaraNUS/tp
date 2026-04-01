@@ -19,11 +19,6 @@ public class StatusCommand implements Command {
     }
 
     @Override
-    public CommandResult undo(StudentDatabase db) throws CommandException {
-        return null;
-    }
-
-    @Override
     public CommandResult execute(StudentDatabase db, Storage storage) throws CommandException {
         if (index <= 0 || index > db.getAllStudents().size()) {
             throw new CommandException("Invalid index: " + index);
@@ -43,6 +38,11 @@ public class StatusCommand implements Command {
                 status);
 
         return new CommandResult(result, false);
+    }
+
+    @Override
+    public CommandResult undo(StudentDatabase db) throws CommandException {
+        return null;
     }
 
     @Override

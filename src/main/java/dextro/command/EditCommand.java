@@ -31,11 +31,6 @@ public class EditCommand implements Command {
     }
 
     @Override
-    public CommandResult execute(StudentDatabase db) throws CommandException {
-        return null;
-    }
-
-    @Override
     public CommandResult undo(StudentDatabase db) throws CommandException {
         return null;
     }
@@ -76,6 +71,11 @@ public class EditCommand implements Command {
         db.updateStudent(index, updatedStudent);
         storage.saveStudentList(db);
         return new CommandResult("Student updated successfully.");
+    }
+
+    @Override
+    public CommandResult execute(StudentDatabase db) throws CommandException {
+        return null;
     }
 
     @Override

@@ -15,11 +15,6 @@ public class ListCommand implements Command {
     }
 
     @Override
-    public CommandResult undo(StudentDatabase db) throws CommandException {
-        return null;
-    }
-
-    @Override
     public CommandResult execute(StudentDatabase db, Storage storage) {
         List<Student> students = db.getAllStudents();
 
@@ -37,6 +32,11 @@ public class ListCommand implements Command {
         }
 
         return new CommandResult(sb.toString().trim(), false);
+    }
+
+    @Override
+    public CommandResult undo(StudentDatabase db) throws CommandException {
+        return null;
     }
 
     @Override
