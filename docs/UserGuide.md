@@ -155,7 +155,7 @@ status <student_id>
 
 ---
 
-### 🔹 `undo`
+### `undo`
 **Description:** Reverts the last command.
 
 **Syntax:**
@@ -165,7 +165,20 @@ undo
 
 ---
 
-### 🔹 `exit`
+### `sort`
+**Description:** Displays a sorted list of the existing databse entries
+
+**Syntax:**
+```
+sort <keyword>
+```
+Keywords: 
+```name, course, cap, mcs```
+
+---
+
+
+### `exit`
 **Description:** Exits the application.
 
 **Syntax:**
