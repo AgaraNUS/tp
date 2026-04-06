@@ -20,8 +20,7 @@ The `StatusCommand` allows users to view detailed information about a specific s
 
 The class diagram shows the relationship between `StatusCommand` and other components:
 - `StatusCommand` implements the `Command` interface
-- It interacts with `StudentDatabase` to retrieve student information
-- It uses the `Storage` component for persistence operations
+- It uses with `StudentDatabase` to retrieve student information, and Storage to save the changes.
 - Returns a `CommandResult` containing the status information
 
 ##### Sequence Diagram
@@ -60,6 +59,35 @@ The sequence diagram illustrates the execution flow:
 4. If available, the last command is popped from the history
 5. The `undo()` method of the last command is invoked
 6. A `CommandResult` is returned indicating the success or failure of the undo operation
+
+
+### Implementation: Wen Yuan
+
+#### Edit Command
+
+The `EditCommand` allows users to alter attributes of the student records.
+
+##### Class Diagram
+
+![EditCommandClassDiagram](images/EditCommandClass.jpeg)
+
+The class diagram shows the relationship between `EditCommand` and other components:
+- `EditCommand` implements the `Command` interface
+- `EditCommand` has dependency relationship with CommandException, Storage, Grade, Module and Student class, and aggregation relationship with StudentDatabase. 
+- It interacts with `StudentDatabase` to retrieve student information
+- It uses the `Storage` component for persistence operations
+- Returns a `CommandResult` containing the status information
+
+##### Sequence Diagram
+
+![StatusCommandSequence](images/StatusCommandSequence.png)
+
+The sequence diagram illustrates the execution flow:
+1. User executes the status command with a student index
+2. `StatusCommand.execute()` is called with the `StudentDatabase` and `Storage`
+3. The command validates the index and retrieves the student
+4. Student information (CAP, MCs, status) is calculated and formatted
+5. A `CommandResult` is returned with the formatted status message
 
 
 ## Product scope
