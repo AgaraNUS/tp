@@ -20,7 +20,7 @@ class AddCommandTest {
         Student student = new Student.Builder("John").build();
         db.addStudent(student);
 
-        AddCommand command = new AddCommand(1, "CS2113", Grade.A);
+        AddCommand command = new AddCommand(1, "CS2113", Grade.A, 4);
 
         // Execute
         CommandResult result = command.execute(db, storage);
@@ -47,7 +47,7 @@ class AddCommandTest {
         Student student = new Student.Builder("John").build();
         db.addStudent(student);
 
-        AddCommand command = new AddCommand(2, "CS2113", Grade.A); // invalid index
+        AddCommand command = new AddCommand(2, "CS2113", Grade.A, 4); // invalid index
 
         // Execute
         CommandResult result = command.execute(db, storage);
@@ -64,7 +64,7 @@ class AddCommandTest {
         StudentDatabase db = new StudentDatabase();
         Storage storage = new Storage("./data/DextroStudentList.txt");
 
-        AddCommand command = new AddCommand(1, "CS2113", Grade.A);
+        AddCommand command = new AddCommand(1, "CS2113", Grade.A, 4);
 
         CommandResult result = command.execute(db, storage);
 
@@ -78,8 +78,8 @@ class AddCommandTest {
         Student student = new Student.Builder("John").build();
         db.addStudent(student);
 
-        AddCommand cmd1 = new AddCommand(1, "CS2113", Grade.A);
-        AddCommand cmd2 = new AddCommand(1, "MA1521", Grade.B_PLUS);
+        AddCommand cmd1 = new AddCommand(1, "CS2113", Grade.A, 4);
+        AddCommand cmd2 = new AddCommand(1, "MA1521", Grade.B_PLUS, 4);
 
         cmd1.execute(db, storage);
         cmd2.execute(db, storage);
@@ -95,7 +95,7 @@ class AddCommandTest {
         Student student = new Student.Builder("John").build();
         db.addStudent(student);
 
-        AddCommand command = new AddCommand(1, "cs2113", Grade.A);
+        AddCommand command = new AddCommand(1, "cs2113", Grade.A, 4);
 
         // Execute
         command.execute(db, storage);
@@ -114,7 +114,7 @@ class AddCommandTest {
         Student student = new Student.Builder("John").build();
         db.addStudent(student);
 
-        AddCommand command = new AddCommand(1, "cS2113", Grade.A);
+        AddCommand command = new AddCommand(1, "cS2113", Grade.A, 4);
 
         command.execute(db, storage);
 
