@@ -12,20 +12,20 @@ public enum Grade {
     D_PLUS("D+", 1.5, true, true),
     D("D", 1.0, true, true),
     F("F", 0.0, true, true),
-    S("S", 0.0, false, true),
-    U("U", 0.0, false, false),
-    CS("CS", 0.0, false, true),
-    CU("CU", 0.0, false, false),
-    IC("IC", 0.0, false, false),
-    IP("IP", 0.0, false, false),
-    AUD("AUD", 0.0, false, false),
-    EXE("EXE", 0.0, false, false),
-    W("W", 0.0, false, false),
-    WU("WU", 0.0, false, false),
-    DT("DT", 5.0, true, true),
-    M("M", 5.0, true, true),
-    PASS("Pass", 5.0, true, true),
-    FAIL("Fail", 5.0, true, true);
+    SATISFACTORY("S", 0.0, false, true),
+    UNSATISFACTORY("U", 0.0, false, false),
+    COMPLETED_SATISFACTORY("CS", 0.0, false, true),
+    COMPLETED_UNSATISFACTORY("CU", 0.0, false, false),
+    INCOMPLETE("IC", 0.0, false, false),
+    IN_PROGRESS("IP", 0.0, false, false),
+    AUDIT("AUD", 0.0, false, false),
+    EXEMPTED("EXE", 0.0, false, false),
+    WITHDRAWN("W", 0.0, false, false),
+    WITHDRAWAL_FROM_UNIVERSITY("WU", 0.0, false, false),
+    DISTINCTION("DT", 5.0, true, true),
+    MERIT("M", 4.0, true, true),
+    PASS("Pass", 3.0, true, true),
+    FAIL("Fail", 0.0, true, true);
 
     private final String label;
     private final double cap;
@@ -41,10 +41,6 @@ public enum Grade {
 
     public double getCap() {
         return cap;
-    }
-
-    public String getLabel() {
-        return label;
     }
 
     public boolean getCountsToGpa() {
