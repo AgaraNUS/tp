@@ -103,6 +103,23 @@ public class Parser {
 
         return address;
     }
+
+    private String validateModuleCode(String moduleCode) throws ParseException {
+        if (!moduleCode.matches("^[A-Z]{2,4}\\d{4}[A-Z0-9]{0,5}$")) {
+            throw new ParseException("Invalid module code: " + moduleCode);
+        } else {
+            return moduleCode;
+        }
+    }
+
+    private Grade validateGrade(String grade) throws ParseException {
+        try {
+            return Grade.fromString(grade.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new ParseException("Invalid grade: " + grade);
+        }
+    }
+
     private Command parseCreate(String args) throws ParseException {
         ArgumentTokenizer tokenizer = new ArgumentTokenizer(args, "n/", "p/", "e/", "a/", "c/");
 
@@ -145,13 +162,9 @@ public class Parser {
             throw new ParseException("Module format must be CODE/GRADE[/CREDITS] (e.g., CS2113/A or CS2113/A/2)");
         }
 
-        String moduleCode = parts[0];
-        Grade grade;
-        try {
-            grade = Grade.fromString(parts[1]);
-        } catch (IllegalArgumentException e) {
-            throw new ParseException("Invalid grade: " + parts[1]);
-        }
+        String moduleCode = validateModuleCode(parts[0].toUpperCase());
+
+        Grade grade = validateGrade(parts[1].toUpperCase());
 
         if (parts.length == 2) {
             return new AddCommand(index, moduleCode, grade, null);
@@ -218,12 +231,9 @@ public class Parser {
             if (parts.length < 2 || parts[0].isBlank() || parts[1].isBlank()) {
                 throw new ParseException("Module format must be CODE/GRADE[/CREDITS] (e.g., m/CS2113/A or m/CS2113/A/2)");
             }
-            moduleCode = parts[0].trim();
-            try {
-                grade = Grade.fromString(parts[1].trim());
-            } catch (IllegalArgumentException e) {
-                throw new ParseException("Invalid grade: " + parts[1]);
-            }
+            moduleCode = validateModuleCode(parts[0].trim().toUpperCase());
+            grade = validateGrade(parts[1].trim().toUpperCase());
+
             if (parts.length >= 3) {
                 try {
                     credits = Integer.parseInt(parts[2].trim());
