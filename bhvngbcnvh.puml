@@ -1,0 +1,28 @@
+@startuml
+
+skinparam classAttributeIconSize 0
+skinparam style strictuml
+
+class dextro.command.EditCommand {
+- int index
+- String name
+- String phone
+- String email
+- String address
+- String course
+- String moduleCode
+- Grade grade
+- Integer credits
+- Student previousStudent
++ CommandResult execute(StudentDatabase)
++ CommandResult execute(StudentDatabase,Storage)
++ CommandResult undo(StudentDatabase)
++ CommandResult undo(StudentDatabase,Storage)
++ boolean isUndoable()
+}
+
+
+
+
+dextro.command.Command <|.. dextro.command.EditCommand
+@enduml

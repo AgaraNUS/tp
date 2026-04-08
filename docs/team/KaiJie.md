@@ -57,5 +57,10 @@ Improved robustness against badly formed inputs by throwing an exception when
 - Added Command Format Notes
 - Added some examples to Command Summary
 
+### Contributions to the Developer Guide
+- Design and implementation of:
+  - Parser
+  - App
+
 ### Contributions to team-based tasks
-Persuaded the team on multiple occasions to contribute to the project code
+Caught bugs for other team members, reminded team members on deadlines, suggested new features
