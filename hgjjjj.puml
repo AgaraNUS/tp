@@ -1,0 +1,10 @@
+@startuml
+interface dextro.command.Command {
+~ CommandResult execute(StudentDatabase)
+~ CommandResult execute(StudentDatabase,Storage)
+~ CommandResult undo(StudentDatabase)
+~ CommandResult undo(StudentDatabase,Storage)
+~ boolean isUndoable()
+}
+
+@enduml
