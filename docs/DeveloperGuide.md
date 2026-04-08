@@ -1,227 +1,132 @@
 # Developer Guide
 
 ## Acknowledgements
-
-{list here sources of all reused/adapted ideas, code, documentation, and third-party libraries -- include links to the original source as well}
+SE-EDU Addressbook 3 Developer Guide: https://se-education.org/addressbook-level3/DeveloperGuide.html
 
 ## Design & implementation
 
-
-### Implementation: Kai Jie
-
-### Overall architecture
+### Design:
 
 
+![ArchitectureDiagram](images/ArchitectureDiagram.png)
+
+The **Architecture Diagram** above explains the high-level design of the application.
+
+Given below is a quick overview of the main components and how they interact with each other.
+
+**Main components of the architecture**
+
+`Main` is the entry point of the application. It is responsible for initialising all components in the correct sequence and connecting them to each other at launch. At shutdown, it terminates the application by exiting the `App` run loop.
+
+The bulk of the app's work is done by the following five components:
+
+- `UI` : Handles all console input and output.
+- `App` : Orchestrates the main run loop, coordinating all other components.
+- `Parser` : Interprets raw user input into executable `Command` objects.
+- `Model` : Holds the student data in memory (`StudentDatabase`, `Student`, `Module`, `Grade`).
+- `Storage` : Reads data from, and writes data to, the hard disk.
+
+`Config` holds application-wide constants (command keywords) used across components.
+
+**How the architecture components interact with each other**
+
+The sequence diagram below shows how the components interact with each other for the scenario where the user issues the command `delete 1`.
+
+![ArchitectureSequence](images/ArchitectureSequence.png)
+ 
 ---
 
-### App
-
-The `App` is responsible for continuously running the program until a flag to stop is received from a `CommandResult`. It coordinates all major components — `Parser`, `Ui`, `StudentDatabase`, `Storage`, and `CommandHistory` — within its main loop.
-
-#### Class Diagram
-
-![AppClassDiagram](images/AppClassDiagram.png)
-
-The class diagram shows the relationship between `App` and other components:
-- `App` depends on `Parser` to parse user input into `Command` objects.
-- `App` calls `Command.execute(db, storage)` and receives a `CommandResult`.
-- `App` uses `Ui` to read input and display output.
-- `App` uses `CommandHistory` to track undoable commands.
-- `App` terminates the loop when `CommandResult.shouldExit()` returns true.
-
----
-
-### Command
-
-The `Command` interface defines the contract that all command classes must implement. It supports both simple execution and storage-aware execution, as well as undo operations.
-
-#### Class Diagram
-
-![CommandClassDiagram](images/CommandClassDiagram.png)
-
-The class diagram shows the relationship between `Command` and other components:
-- `Command` is implemented by `CreateCommand`, `DeleteCommand`, `ListCommand`, `AddCommand`, and `RemoveCommand`.
-- Each implementation provides `execute(StudentDatabase, Storage)` for the primary action and `undo(StudentDatabase, Storage)` to reverse it.
-- `isUndoable()` signals to `App` whether the command should be pushed onto `CommandHistory`.
-
----
-
-### CommandResult
-
-The `CommandResult` encapsulates the outcome of a command execution, carrying the message to display to the user and an optional exit flag to signal program termination.
-
-#### Class Diagram
-
-![CommandResultClassDiagram](images/CommandResultClassDiagram.png)
-
-The class diagram shows the relationship between `CommandResult` and other components:
-- Every `Command.execute()` call returns a `CommandResult`.
-- `App` reads the message via `getMessage()` and passes it to `Ui.show()`.
-- `App` checks the exit flag via `shouldExit()` to determine whether to terminate the main loop.
-- 
----
-
-### CommandException
-
-The `CommandException` is an unchecked exception thrown when a command fails to execute due to an invalid state or an operation that cannot be completed, such as an out-of-bounds index or an undo on a non-executed command.
-
-#### Class Diagram
-
-![CommandExceptionClassDiagram](images/CommandExceptionClassDiagram.png)
-
-The class diagram shows the relationship between `CommandException` and other components:
-- `CommandException` extends `RuntimeException`.
-- It is thrown by `Command.execute()` and `Command.undo()` implementations when execution cannot proceed.
-- `App` catches `CommandException` in its main loop and passes the error message to `Ui.show()`.
-
-
----
-
-### ParseException
-
-The `ParseException` is an unchecked exception thrown when the `Parser` or `ArgumentTokenizer` receives input that does not conform to the expected format, such as an unknown command keyword, a malformed argument string, or a duplicate prefix.
-
-#### Class Diagram
-
-![ParseExceptionClassDiagram](images/CommandExceptionClassDiagram.png)
-
-The class diagram shows the relationship between `ParseException` and other components:
-- `ParseException` extends `RuntimeException`.
-- It is thrown by `Parser` and `ArgumentTokenizer` when input cannot be parsed.
-- `App` catches `ParseException` in its main loop and passes the error message to `Ui.show()`.
-
-
----
-
-### Config
-
-The `Config` class holds all application-wide command keyword constants as public static final strings. It is a utility class with a private constructor to prevent instantiation, and is referenced by `Parser` when matching user input to command types.
-
-#### Class Diagram
-
-![ConfigClassDiagram](images/ConfigClassDiagram.png)
-
-The class diagram shows the relationship between `Config` and other components:
-- `Config` is a `final` class with only static String constants and a private constructor.
-- `Parser` references `Config` constants (e.g., `Config.CMD_CREATE`, `Config.CMD_DELETE`) in its switch expression to route input to the correct parse method.
-
----
-
-### Parser
-
-The `Parser` is responsible for interpreting raw user input into executable `Command` objects. It splits input into a command keyword and arguments, delegates argument tokenisation to `ArgumentTokenizer`, validates field values, and constructs the appropriate `Command`.
-
-#### Class Diagram
-
-![ParserClassDiagram](images/ParserClassDiagram.png)
-
-The class diagram shows the relationship between `Parser` and other components:
-- `Parser` uses `ArgumentTokenizer` to tokenise argument strings into key-value maps.
-- `Parser` creates and returns concrete `Command` objects via its private `parseX()` methods.
-- `Parser` holds a reference to `CommandHistory`, injected by `App`, which is passed to `UndoCommand`.
-- `Parser` throws `ParseException` when input is malformed or a field fails validation.
-
----
-
-### ArgumentTokenizer
-
-The `ArgumentTokenizer` parses a raw argument string into a map of prefix-to-value pairs. It scans the string for recognised prefixes (e.g., `n/`, `p/`, `e/`) and extracts the substring between each prefix and the next, respecting a whitespace-before-prefix rule to avoid false matches within values.
-
-#### Class Diagram
-
-![ArgumentTokenizerClassDiagram](images/ArgumentTokenizerClassDiagram.png)
-
-The class diagram shows the relationship between `ArgumentTokenizer` and other components:
-- `ArgumentTokenizer` is constructed by `Parser` with the argument string and a varargs list of expected prefixes.
-- It populates an internal `Map<String, String>` of prefix to value during construction.
-- `Parser` retrieves individual values via `getValue(prefix)`.
-- `ArgumentTokenizer` throws `ParseException` if a duplicate prefix is detected.
-
----
-
-### Student and StudentDatabase
-
-The `Student` class represents a student record holding personal details and a list of `Module` objects. `StudentDatabase` manages the in-memory collection of all students, providing methods to add, retrieve, update, and remove them. `Student` instances are constructed using the `Student.Builder` pattern, which enforces that `name` is always provided.
-
-#### Class Diagram
-
-![StudentClassDiagram](images/StudentClassDiagram.png)
-
-The class diagram shows the relationship between `Student`, `StudentDatabase`, and other components:
-- `StudentDatabase` contains a `List<Student>` and exposes CRUD methods.
-- `Student` holds personal fields and a `List<Module>`, and provides computed methods such as `calculateCap()`, `getTotalMCs()`, and `getProgressStatus()`.
-- `Student` is built via the inner `Student.Builder` class, which allows optional fields to be set via a fluent API.
-- `Command` subclasses interact with `StudentDatabase` to perform operations on student records.
-
----
-
-### Grade
-
-The `Grade` enum represents all possible grade values a `Module` can carry, including letter grades, pass/fail designations, and special statuses such as `IN_PROGRESS`, `AUDIT`, and `EXEMPTED`. Each constant carries a grade point value, a flag indicating whether it counts towards GPA, and a flag indicating whether it counts towards module completion.
-
-#### Class Diagram
-
-![GradeClassDiagram](images/GradeClassDiagram.png)
-
-The class diagram shows the relationship between `Grade` and other components:
-- `Grade` is held by `Module`, which passes its grade to `Student` methods such as `calculateCap()` and `getTotalMCs()`.
-- `Grade.fromString(String)` is used by `Parser` to convert a user-supplied grade string into the corresponding enum constant, throwing `IllegalArgumentException` (wrapped by `Parser` as `ParseException`) if the input is unrecognised.
-
----
-
-### Module
-
-The `Module` class represents a course module associated with a `Student`. Each `Module` holds a module code, a `Grade`, and a credit count (defaulting to 4 MCs if not specified). It is created by `AddCommand` and stored in the student's module list.
-
-#### Class Diagram
-
-![ModuleClassDiagram](images/ModuleClassDiagram.png)
-
-The class diagram shows the relationship between `Module` and other components:
-- `Module` is created by `AddCommand` and held in a `Student`'s `List<Module>`.
-- `Module` references `Grade` for its grade value.
-- `RemoveCommand` searches the student's module list by code and removes the matching `Module`.
-- `Student.calculateCap()` and `Student.getTotalMCs()` iterate over the module list, calling `getGrade()`, `getCredits()`, and the grade's computed properties.
-
----
-
-### Ui
+#### UI Component
 
 The `Ui` class handles all console input and output. It reads user commands from standard input via a `Scanner` and displays messages surrounded by separator lines. Output methods are static to allow calls from anywhere without needing a `Ui` instance.
 
-#### Class Diagram
-
 ![UiClassDiagram](images/UiClassDiagram.png)
 
-The class diagram shows the relationship between `Ui` and other components:
-- `Ui` is instantiated once by `Main` and passed to `App`.
-- `App` calls `ui.readCommand()` each loop iteration to obtain input.
-- `App` calls the static `Ui.show(String)` to display command results and error messages.
-- `Ui.line()` prints a horizontal separator, called internally by `show()`.
+The `UI` component:
+- is instantiated once by `Main` and passed into `App`.
+- exposes `readCommand()` which `App` calls each loop iteration to obtain the next line of input.
+- exposes the static `Ui.show(String)` method, called by `App` to display command results and error messages.
 
 ---
 
-### Main
+#### App Component
 
-The `Main` class is the entry point of the application. It initialises all top-level components, loads persisted student data from `Storage`, and starts `App`.
+The `App` component is responsible for continuously running the program until a flag to stop is received from a `CommandResult`. It coordinates all major components — `Parser`, `Ui`, `StudentDatabase`, `Storage`, and `CommandHistory` — within its main loop.
 
-#### Class Diagram
+![AppClassDiagram](images/AppClassDiagram.png)
 
-![MainClassDiagram](images/MainClassDiagram.png)
-
-The class diagram shows the relationship between `Main` and other components:
-- `Main` creates `Ui`, `Parser`, and `Storage` instances.
-- `Main` attempts to load the student list from `Storage`; on `IOException`, it logs the error via `Ui.show()` and initialises an empty `StudentDatabase`.
-- `Main` constructs `App` with all dependencies and calls `App.run()`.
-
+The `App` component:
+- depends on `Parser` to parse user input into `Command` objects.
+- calls `Command.execute(db, storage)` and receives a `CommandResult`.
+- uses `Ui` to read input and display output.
+- uses `CommandHistory` to track undoable commands, pushing each onto the stack after successful execution.
+- terminates the loop when `CommandResult.shouldExit()` returns `true`.
+- catches `ParseException` and `CommandException` in its main loop and displays the error message via `Ui.show()`.
 
 ---
 
-### Create Command
+#### Parser Component
+
+The `Parser` component is responsible for interpreting raw user input into executable `Command` objects. It splits input into a command keyword and arguments, delegates argument tokenisation to `ArgumentTokenizer`, validates field values, and constructs the appropriate `Command`.
+
+![ParserClassDiagram](images/ParserClassDiagram.png)
+
+The `Parser` component:
+- uses `ArgumentTokenizer` to tokenise argument strings into key-value maps for commands that take named fields (e.g. `n/`, `p/`, `e/`).
+- uses constants from `Config` in a switch expression to route the command keyword to the correct private `parseX()` method.
+- holds a reference to `CommandHistory` (injected by `App`) which it passes into `UndoCommand`.
+- throws `ParseException` when the input is malformed or a field fails validation.
+
+`ArgumentTokenizer` scans a raw argument string for recognised prefixes and extracts the substring between each prefix and the next as its value. It throws `ParseException` if a duplicate prefix is detected.
+ 
+---
+
+#### Model Component
+
+The Model component holds all student data in memory.
+
+![StudentClassDiagram](images/StudentClassDiagram.png)
+
+The `Model` component:
+- uses `StudentDatabase` to hold the in-memory `List<Student>` and expose CRUD operations (`addStudent`, `removeStudent`, `getStudent`, `getAllStudents`).
+- represents each student as a `Student` object, constructed via the inner `Student.Builder` class which enforces that `name` is always provided. Each `Student` holds personal fields (`name`, `phone`, `email`, `address`, `course`) and a `List<Module>`.
+- represents each enrolled module as a `Module` object carrying a module code, a `Grade`, and a credit count (defaulting to 4 MCs).
+- uses the `Grade` enum to represent all possible grade values, where each constant carries a grade-point value and flags for GPA and completion counting, used by `Student.calculateCap()` and `Student.getTotalMCs()`.
+
+The `Model` component does not depend on `Storage` or `Parser` — it represents pure data and business logic.
+ 
+---
+
+#### Storage Component
+
+The `Storage` component handles reading from and writing to the flat-file database at `./data/DextroStudentList.txt`.
+
+The `Storage` component:
+- saves the full `StudentDatabase` to disk after every mutating command, serialising each `Student` and its `Module` list as a delimited string.
+- loads the student list at startup, parsing each line back into `Student` and `Module` objects. If the file or directory does not exist, it creates them and returns an empty list.
+- throws `StorageException` on file I/O errors, which `Main` catches and handles by starting with an empty `StudentDatabase`.
+
+---
+
+#### Common Classes
+
+The following classes are used across multiple components:
+
+- `Command` — interface defining `execute(StudentDatabase, Storage)`, `undo(StudentDatabase, Storage)`, and `isUndoable()`, implemented by all command classes.
+- `CommandResult` — encapsulates the outcome of a command execution, carrying the display message and an optional exit flag read by `App`.
+- `CommandException` — unchecked exception thrown by command implementations when execution cannot proceed (e.g. out-of-bounds index).
+- `ParseException` — unchecked exception thrown by `Parser` and `ArgumentTokenizer` when input is malformed.
+- `Config` — `final` utility class with only static String constants for command keywords (e.g. `CMD_CREATE`, `CMD_DELETE`), referenced by `Parser`.
+ 
+---
+
+### Implementation: Kai Jie
+
+#### Create Command
 
 The `CreateCommand` allows users to create a new student record with a required name and optional phone, email, address, and course fields. It supports undo by storing the index of the created student and removing it on `undo()`.
 
-#### Class Diagram
+##### Class Diagram
 
 ![CreateCommandClassDiagram](images/CreateCommandClassDiagram.png)
 
@@ -231,7 +136,7 @@ The class diagram shows the relationship between `CreateCommand` and other compo
 - It calls `Storage.saveStudentList()` to write changes to disk.
 - It returns a `CommandResult` containing a confirmation message with the student's name.
 
-#### Sequence Diagram
+##### Sequence Diagram
 
 ![CreateCommandSequence](images/CreateCommandSequence.png)
 
@@ -246,11 +151,11 @@ The sequence diagram illustrates the execution flow:
 
 ---
 
-### Delete Command
+#### Delete Command
 
 The `DeleteCommand` allows users to remove an existing student record by 1-based index. It supports undo by storing the deleted `Student` and its original index for reinsertion.
 
-#### Class Diagram
+##### Class Diagram
 
 ![DeleteCommandClassDiagram](images/DeleteCommandClassDiagram.png)
 
@@ -261,7 +166,7 @@ The class diagram shows the relationship between `DeleteCommand` and other compo
 - It throws `CommandException` if the index is out of bounds.
 - It returns a `CommandResult` containing the deleted student's details.
 
-#### Sequence Diagram
+##### Sequence Diagram
 
 ![DeleteCommandSequence](images/DeleteCommandSequence.png)
 
@@ -275,11 +180,11 @@ The sequence diagram illustrates the execution flow:
 
 ---
 
-### List Command
+#### List Command
 
 The `ListCommand` retrieves and displays all student records currently held in `StudentDatabase`. It is not undoable as it performs no mutations.
 
-#### Class Diagram
+##### Class Diagram
 
 ![ListCommandClassDiagram](images/ListCommandClassDiagram.png)
 
@@ -287,10 +192,10 @@ The class diagram shows the relationship between `ListCommand` and other compone
 - `ListCommand` implements the `Command` interface.
 - It calls `StudentDatabase.getAllStudents()` to retrieve the full student list.
 - It formats each student using `Student.toString()` with a 1-based index prefix.
-- It returns a `CommandResult` with the formatted list, or a "No students found." message if the list is empty.
+- It returns a `CommandResult` with the formatted list, or a `"No students found."` message if the list is empty.
 - `isUndoable()` returns `false`; `undo()` throws `CommandException`.
 
-#### Sequence Diagram
+##### Sequence Diagram
 
 ![ListCommandSequence](images/ListCommandSequence.png)
 
@@ -305,11 +210,11 @@ The sequence diagram illustrates the execution flow:
 
 ---
 
-### Add Command
+#### Add Command
 
 The `AddCommand` adds a `Module` to an existing student's module list, identified by 1-based index. The module is specified as `CODE/GRADE` or `CODE/GRADE/CREDITS`. It supports undo by removing the added module.
 
-#### Class Diagram
+##### Class Diagram
 
 ![AddCommandClassDiagram](images/AddCommandClassDiagram.png)
 
@@ -320,7 +225,7 @@ The class diagram shows the relationship between `AddCommand` and other componen
 - It calls `student.addModule(module)` and `storage.saveStudentList(db)`.
 - `undo()` calls `student.removeModule(moduleCode)` to reverse the addition.
 
-#### Sequence Diagram
+##### Sequence Diagram
 
 ![AddCommandSequence](images/AddCommandSequence.png)
 
@@ -335,11 +240,11 @@ The sequence diagram illustrates the execution flow:
 
 ---
 
-### Remove Command
+#### Remove Command
 
 The `RemoveCommand` removes a named `Module` from an existing student's module list, identified by 1-based index. It supports undo by storing the removed `Module` reference for reinsertion.
 
-#### Class Diagram
+##### Class Diagram
 
 ![RemoveCommandClassDiagram](images/RemoveCommandClassDiagram.png)
 
@@ -351,7 +256,7 @@ The class diagram shows the relationship between `RemoveCommand` and other compo
 - `undo()` calls `student.addModule(removedModule)` to reinsert the saved module.
 - `CommandException` is thrown by `undo()` if the command was never executed or the module was not found.
 
-#### Sequence Diagram
+##### Sequence Diagram
 
 ![RemoveCommandSequence](images/RemoveCommandSequence.png)
 
