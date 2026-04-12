@@ -9,48 +9,43 @@ Dextro will track students' progress and provide insights on how a student is fa
 ## Quick Start
 
 1. Ensure Java 17 is installed. Mac users: Ensure you have the precise JDK version prescribed here.
-1. Download latest `dextro.jar` file.
-1. Copy the file to the folder you want to use as the home folder for Dextro.
-1. Open a command terminal, cd into the folder you put the jar file in, and use the `java -jar dextro.jar` command to run the application.
-1. Proceed to execute commands, refer to the Features below for details of each command.
+2. Download latest `dextro.jar` file.
+3. Copy the file to the folder you want to use as the home folder for Dextro.
+4. Open a command terminal, cd into the folder you put the jar file in, and use the `java -jar dextro.jar` command to run the application.
+5. Proceed to execute commands, refer to the Features below for details of each command.
 
 ## Features
-
-1. Creating a new student record
-2. Listing all existing students along with individual summaries
-3. Directly edit student records
-4. Add new module to the student record
-5. Delete an entry
-6. View details of selected student by id
-7. Filter student records based on tutorial/major
-8. Find students based on personal details
-9. View Status of a student
-10. Undo Feature for written commands
-
-
 
 ### `create`
 **Description:** Creates a new student.
 
 **Syntax:**
 ```
-create n/<name> [p/<phone_number>] [e/<email_address>] [a/<address>] [c/<course>]
+create n/NAME [p/PHONE] [e/EMAIL] [a/ADDRESS] [c/COURSE]
 ```
 
 **Example:**
 ```
-create n/John Doe p/87654321 e/john_doe@hmail.com a/Orchard Road block 20 #23-11 c/Computer Science
+> create n/John Doe p/87654321 e/john@hmail.com a/20 Orchard Road #23-11 c/Computer Science
+----------------------------------------------------------------------------------------------------
+Student created: John Doe
+----------------------------------------------------------------------------------------------------
 ```
-Optional fields not provided or provided as blank will be stored blank. NAME is compulsory, while the rest are optional.
+Optional fields not provided or provided as blank will be stored as `N.A.`. NAME is compulsory, while the rest are optional.
 Repeated fields not allowed. Order of fields does not matter.
 
-Prefixes must be separated from text before with a space. Example:
+The following command is valid for the reasons explained below:
 ```
-create n/John/ p/87654321
+create n/John/ p/87654321 e/
 ```
-The above command does not trigger an error for duplicate prefixes as the name is parsed as John/.
+- Since prefixes must be separated from previous text using at least one space, the above command does not trigger an error for duplicate prefixes as the name is parsed as John/.
+- Leaving optional fields empty will not trigger an error, neither does not including the corresponding prefix.
 
-Entries with duplicate details, i.e. same name or address (including exact duplicates) are allowed.
+**Duplicate entries:**
+
+Creating a new entry with a phone number, email and address that matches an existing student will result in a confirmation prompt.
+Users can then input "y" to confirm 
+
 
 ---
 
@@ -59,13 +54,19 @@ Entries with duplicate details, i.e. same name or address (including exact dupli
 
 **Syntax:**
 ```
-delete <student_id>
+delete INDEX
 ```
 
 **Example:**
 ```
-delete 1
+> delete 1
+----------------------------------------------------------------------------------------------------
+Successfully deleted student:
+John Doe/87654321/john_doe@hmail.com/N.A./N.A.
+----------------------------------------------------------------------------------------------------
 ```
+
+
 
 ---
 
@@ -74,7 +75,7 @@ delete 1
 
 **Syntax:**
 ```
-edit <student_id> [n/<name>] [p/<phone_number>] [e/<email_address>] [a/<address>] [c/<course>] [m/<module_code>/<grade>[/<credits>]]
+edit INDEX [n/NAME] [p/PHONE] [e/EMAIL] [a/ADDRESS] [c/COURSE] [m/CODE/GRADE[/CREDITS]]
 ```
 
 **Example:**
@@ -83,19 +84,15 @@ edit 1 n/Jane Doe p/98765432 m/CG2027/B/2
 ```
 Minimum of one field must be provided. Repeated fields not allowed. Order of fields does not matter.
 
-If the requested edit does not modify anything, the program will output a successful result anyways.
+If the requested edit does not modify anything, the program will output a successful result anyway.
 
 Prefixes must be separated from text before with a space. Example:
 ```
 edit 2 n/John/ p/87654321
 ```
-The above command does not trigger an error for duplicate prefixes as the name is parsed as John/. 
+The above command does not trigger an error for duplicate prefixes as the name is parsed as John/, similar to `create`.
 
-When editing a student's module entry:
 
-- If the module does not exist, the program will output an error message saying that the module is not found for the student.
-- Module credits are optional. Program will default to 4 credits if not provided.
-- Module code and grade are case-insensitive
 
 ---
 
@@ -110,9 +107,9 @@ Example output:
 ```
 > list
 ----------------------------------------------------------------------------------------------------
-1: Bronathan Binglebong/999/N.A./N.A./DSA
-2: Charlie Chocolate/67676767/willywonka@jmail.com/Lakseside/N.A.
-3: Dalton Dog/83463726/clifford_big_red@dogmail.com/Tampines St 82 Blk 853 #04-67/CS
+1: Bronathan Binglebong/98765432/N.A./N.A./Data Science and Analytics
+2: Charlie Chocolate/87654321/willywonka@jmail.com/Lakseside/N.A.
+3: Dalton Dog/83463726/clifford@red.com/Tampines St 83/Computer Science
 ----------------------------------------------------------------------------------------------------
 ```
 ---
@@ -122,7 +119,7 @@ Example output:
 
 **Syntax:**
 ```
-find <keywords>
+find KEYWORD
 ```
 
 **Example:**
@@ -147,7 +144,7 @@ Here are the matching students in your list:
 
 **Syntax:**
 ```
-search [n/name] [p/<phone_number>] [e/<email>] [a/<address>] [c/<course>] [m/<module_code>/<grade>]
+search [c/COURSE] [m/CODE/GRADE]
 ```
 Only one field can be provided. Repeated fields not allowed.
 
@@ -160,7 +157,7 @@ Prefixes must be separated from text before with a space.
 
 **Syntax:**
 ```
-status <student_id>
+status INDEX
 ```
 
 ---
@@ -180,9 +177,8 @@ undo
 
 **Syntax:**
 ```
-sort <criterion>
+sort [name|course|cap|mcs]
 ```
-Criteria: `name, course, cap, mcs`
 
 Displays a temporary list. Does not affect the order of the database entries. 
 
@@ -206,15 +202,25 @@ exit
 
 **Syntax:**
 ```
-add <student_id> m/<module_code>/<grade>[/credits]
+add INDEX CODE/GRADE[/CREDITS]
 ```
 
 **Example:**
 ```
-add 1 m/CS101/A
-add 1 m/MA1511/B+/2
+> add 1 CS2113/A
+----------------------------------------------------------------------------------------------------
+Added module CS2113 (A) to john
+----------------------------------------------------------------------------------------------------
+> add 1 MA1511/B+/2
+----------------------------------------------------------------------------------------------------
+Added module MA1511 (B+) to john
+----------------------------------------------------------------------------------------------------
+> add 1 MA1511/B
+----------------------------------------------------------------------------------------------------
+Error: Module MA1511 already exists for this student.
+----------------------------------------------------------------------------------------------------
 ```
-Adding duplicate modules under the same student is allowed, to accommodate module retakes.
+Adding duplicate modules under the same student is not allowed.
 
 Modules are validated against a pattern that fits all existing NUS module codes; non-existent modules that follow the same format are allowed.
 
@@ -225,38 +231,54 @@ Modules are validated against a pattern that fits all existing NUS module codes;
 
 **Syntax:**
 ```
-remove <student_id> m/<module_code>
+remove INDEX CODE
 ```
 
 **Example:**
 ```
-remove 1 m/Cs101
-remove 1 m/cG1111a
+remove 1 Cs101
+remove 1 cG1111a
 ```
 
-module code is not case sensitive.
+CODE is case-insensitive
+
+---
+
+##  Field Constraints
+- `n/` → Name
+  - Must be less than 100 characters long.
+  - Must contain only letters, spaces, and the following special symbols: `, ( ) . - / @ '`
+  - Case is stored as given.
+- `p/` → Phone number
+  - Only valid Singaporean mobile number is allowed, i.e. begins with 8 or 9.
+  - Must consist of only 8 digits.
+- `e/` → Email address
+  - Must follow valid email address format:
+    - Must contain a `@` symbol
+    - Local part allows letters, numbers and `. _ % + -`
+    - Domain must contain at least one `.`
+  - Case-insensitive, converted to lowercase when stored and displayed.
+- `a/` → Home address
+  - Must be less than 200 characters long.
+  - Must contain only alphanumeric symbols, spaces and the following special symbols: `, . # - / ( ) &`
+  - Case is stored as given.
+- `c/` → Course
+  - Must be less than 50 characters long.
+  - Must contain only letters, spaces and the following special symbols: `, ( ) & -`
+  - Case is stored as given.
+- `m/` → Module
+  - CODE must follow the same format as actual NUS modules.
+  - CODE must consist only of alphanumeric symbols.
+  - CODE and GRADE case-insensitive, converted to uppercase when stored and displayed
+- `INDEX` → Index shown in the list
 
 ---
 
 ##  Command Format Notes
-- `n/` → Name
-  - Must be less than 100 characters long
-- `p/` → Phone number
-  - Only valid Singaporean mobile number is allowed, i.e. begins with 8 or 9.
-- `e/` → Email address
-  - Local portion allows only letters, numbers and special chars `. _ % + -`
-  - Must contain a `@` symbol
-  - Domain portion allows only letters, numbers, hyphens and at least one dot `.`
-- `a/` → Home address
-  - Must be less than 200 characters long
-- `c/` → Course
-  - Must be less than 100 characters long
-- `m/` → Module
-  - Must follow the same format as actual NUS modules. Strings that follow the same format are allowed
-- `<student_id>` → Index shown in the list
-
----
-
+- Command keywords are case-insensitive. For example, `create`, `CREATE`, and `Create` will all invoke the same command.
+- Prefixes (e.g., `n/`, `p/`, `e/`) remain case-sensitive unless otherwise specified.
+- Data fields (e.g., names, addresses) preserve the case entered by the user unless stated otherwise. See Data Field Info.
+- Prefixes must be preceded by a space to be recognized as separate fields.
 
 ## FAQ
 
@@ -264,14 +286,121 @@ module code is not case sensitive.
 
 **A**: Navigate to /data/DextroStudentList.txt and replace the target computer's file.
 
+**Q**: Will my data be saved automatically?
+
+**A**: Yes. All changes are saved automatically to the data file after each command.
+
+**Q**: How do I clear all data?
+
+**A**: Delete the `/data/DextroStudentList.txt` file and restart the application.
+
+**Q**: Why is my command not working?
+
+**A**: Ensure that:
+- Prefixes (e.g., n/, p/) are separated by a space
+- Required fields are provided
+- No duplicate prefixes are used
+
+**Q**: Why am I seeing a duplicate warning?
+
+**A**: The system detected another student with the same phone, email, or address. Enter `y` to confirm creation, or any other input to cancel.
+
+**Q**: Can I undo all commands?
+
+**A**: Most commands can be undone using `undo`. Some commands (e.g., sort) may not be undoable.
+
+**Q**: Why is my input being parsed incorrectly?
+
+**A**: Prefixes must be preceded by a space. Otherwise, they will be treated as part of the previous field.
+
+**Q**: Why can’t I add a module?
+
+**A**: Ensure the format is `CODE/GRADE[/CREDITS]` (e.g., `CS2113/A` or `CS2113/A/4`).
+
+**Q**: What is the difference between `find` and `search`?
+
+**A**:
+- `find` searches across all fields using a keyword
+- `search` filters by a specific field (e.g., course or module)
+
+**Q**: Why does it say the index is invalid?
+
+**A**: Ensure the index is a valid number shown in the current list.
+
+
 ## Command Summary
 
-* Add student named John Lim Jun Jie with a phone number 88664422:
+* Create a student with full details:
 ```
-create n/John Lim Jun Jie p/88664422
+create n/John Doe p/91234567 e/john@u.nus.edu a/PGP Block 12 #03-123 c/Computer Science
 ```
-* Add module CS2113/B+ to John's info:
+
+* Create a student with only a name:
 ```
-find John Lim Jun Jie
-add <student_id> m/CS2113/B+
+create n/Jane Tan
+```
+
+* List all students:
+```
+list
+```
+
+* Find students by keyword:
+```
+find John
+```
+
+* Search students by course:
+```
+search c/Computer Science
+```
+
+* Search students by module:
+```
+search m/CS2113
+```
+
+* Edit a student’s details:
+```
+edit 1 n/John Upgraded p/98765432
+```
+
+* Add a module to a student:
+```
+add 1 CS2113/A
+```
+
+* Add a module with credits:
+```
+add 1 MA1512/B+/2
+```
+
+* Remove a module:
+```
+remove 1 CS2113
+```
+
+* Delete a student:
+```
+delete 1
+```
+
+* View student status:
+```
+status 1
+```
+
+* Sort students by CAP:
+```
+sort cap
+```
+
+* Undo the last action:
+```
+undo
+```
+
+* Exit the application:
+```
+exit
 ```

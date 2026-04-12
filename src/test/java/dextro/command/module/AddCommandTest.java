@@ -4,208 +4,177 @@ import dextro.app.Storage;
 import dextro.command.CommandResult;
 import dextro.exception.CommandException;
 import dextro.model.Grade;
-import dextro.model.Module;
 import dextro.model.Student;
 import dextro.model.record.StudentDatabase;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertNull;
-
-
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AddCommandTest {
 
-    @Test
-    void execute_validInput_addsModuleSuccessfully() {
-        // Setup
-        StudentDatabase db = new StudentDatabase();
-        Storage storage = new Storage("./data/DextroStudentList.txt");
-        Student student = new Student.Builder("John").build();
+    private StudentDatabase db;
+    private Storage storage;
+    private Student student;
+
+    @BeforeEach
+    void setUp() {
+        db = new StudentDatabase();
+        storage = new Storage("./data/DextroStudentList.txt");
+        student = new Student.Builder("JOHN").build();
         db.addStudent(student);
+    }
 
-        AddCommand command = new AddCommand(1, "CS2113", Grade.A, 4);
+    // ===== execute(db, storage) — happy path =====
 
-        // Execute
-        CommandResult result = command.execute(db, storage);
-
-        // Assert message
-        assertEquals(
-                "Added module CS2113 (A) to John",
-                result.getMessage()
-        );
-
-        // Assert module added
+    @Test
+    void execute_validInput_moduleAddedToStudent() {
+        new AddCommand(1, "CS2113", Grade.A, 4).execute(db, storage);
         assertEquals(1, student.getModules().size());
-
-        Module module = student.getModules().get(0);
-        assertEquals("CS2113", module.getCode());
-        assertEquals(Grade.A, module.getGrade());
     }
 
     @Test
-    void execute_invalidIndex_returnsErrorMessage() {
-        // Setup
-        StudentDatabase db = new StudentDatabase();
-        Storage storage = new Storage("./data/DextroStudentList.txt");
-        Student student = new Student.Builder("John").build();
-        db.addStudent(student);
-
-        AddCommand command = new AddCommand(2, "CS2113", Grade.A, 4); // invalid index
-
-        // Execute
-        CommandResult result = command.execute(db, storage);
-
-        // Assert
-        assertEquals("Invalid student index", result.getMessage());
-
-        // Ensure nothing added
-        assertEquals(0, student.getModules().size());
+    void execute_validInput_messageCorrect() {
+        CommandResult result = new AddCommand(1, "CS2113", Grade.A, 4).execute(db, storage);
+        assertEquals("Added module CS2113 (A) to JOHN", result.getMessage());
     }
 
     @Test
-    void execute_emptyDatabase_returnsError() {
-        StudentDatabase db = new StudentDatabase();
-        Storage storage = new Storage("./data/DextroStudentList.txt");
-
-        AddCommand command = new AddCommand(1, "CS2113", Grade.A, 4);
-
-        CommandResult result = command.execute(db, storage);
-
-        assertEquals("Invalid student index", result.getMessage());
+    void execute_validInput_moduleCodeStoredUppercase() {
+        new AddCommand(1, "cs2113", Grade.A, 4).execute(db, storage);
+        assertEquals("CS2113", student.getModules().get(0).getCode());
     }
 
     @Test
-    void execute_multipleAdds_modulesAccumulate() {
-        StudentDatabase db = new StudentDatabase();
-        Storage storage = new Storage("./data/DextroStudentList.txt");
-        Student student = new Student.Builder("John").build();
-        db.addStudent(student);
+    void execute_withCredits_creditsStoredCorrectly() {
+        new AddCommand(1, "CS2113", Grade.A, 6).execute(db, storage);
+        assertEquals(6, student.getModules().get(0).getCredits());
+    }
 
-        AddCommand cmd1 = new AddCommand(1, "CS2113", Grade.A, 4);
-        AddCommand cmd2 = new AddCommand(1, "MA1521", Grade.B_PLUS, 4);
+    @Test
+    void execute_nullCredits_defaultsFourCredits() {
+        new AddCommand(1, "CS2113", Grade.A, null).execute(db, storage);
+        assertEquals(4, student.getModules().get(0).getCredits());
+    }
 
-        cmd1.execute(db, storage);
-        cmd2.execute(db, storage);
+    @Test
+    void execute_gradeStoredCorrectly() {
+        new AddCommand(1, "CS2113", Grade.B_PLUS, 4).execute(db, storage);
+        assertEquals(Grade.B_PLUS, student.getModules().get(0).getGrade());
+    }
 
+    @Test
+    void execute_multipleModules_allAccumulate() {
+        new AddCommand(1, "CS2113", Grade.A, 4).execute(db, storage);
+        new AddCommand(1, "MA1521", Grade.B_PLUS, 4).execute(db, storage);
         assertEquals(2, student.getModules().size());
     }
 
     @Test
-    void execute_lowercaseModuleCode_convertedToUppercase() {
-        // Setup
-        StudentDatabase db = new StudentDatabase();
-        Storage storage = new Storage("./data/DextroStudentList.txt");
-        Student student = new Student.Builder("John").build();
-        db.addStudent(student);
-
-        AddCommand command = new AddCommand(1, "cs2113", Grade.A, 4);
-
-        // Execute
-        command.execute(db, storage);
-
-        // Assert module stored in uppercase
+    void execute_duplicateModule_addedAgain() {
+        // duplicate modules not allowed
+        new AddCommand(1, "CS2113", Grade.A, 4).execute(db, storage);
+        new AddCommand(1, "CS2113", Grade.B, 4).execute(db, storage);
         assertEquals(1, student.getModules().size());
-
-        Module module = student.getModules().get(0);
-        assertEquals("CS2113", module.getCode()); // should be uppercase
     }
 
     @Test
-    void execute_mixedCaseModuleCode_convertedToUppercase() {
-        StudentDatabase db = new StudentDatabase();
-        Storage storage = new Storage("./data/DextroStudentList.txt");
-        Student student = new Student.Builder("John").build();
-        db.addStudent(student);
-
-        AddCommand command = new AddCommand(1, "cS2113", Grade.A, 4);
-
-        command.execute(db, storage);
-
-        Module module = student.getModules().get(0);
-        assertEquals("CS2113", module.getCode());
+    void execute_correctStudentSelected_whenMultipleStudents() {
+        Student second = new Student.Builder("JANE").build();
+        db.addStudent(second);
+        new AddCommand(2, "MA1521", Grade.A, 4).execute(db, storage);
+        assertEquals(0, student.getModules().size());
+        assertEquals(1, second.getModules().size());
     }
 
-    // ===== execute(db, storage) =====
-
+    // ===== execute(db, storage) — invalid index =====
     @Test
-    void execute_indexBelowOne_returnsInvalidMessage() {
-        StudentDatabase db = new StudentDatabase();
-        Storage storage = new Storage("./data/DextroStudentList.txt");
-        Student student = new Student.Builder("John").build();
-        db.addStudent(student);
-        AddCommand cmd = new AddCommand(0, "CS1010", Grade.A, null);
-        CommandResult result = cmd.execute(db, storage);
-        assertEquals("Invalid student index", result.getMessage());
+    void execute_indexZero_returnsInvalidMessage() {
+        assertThrows(CommandException.class,
+                () -> new AddCommand(0, "CS2113", Grade.A, null).execute(db, storage));
     }
 
     @Test
-    void execute_indexAboveStudentCount_returnsInvalidMessage() {
-        StudentDatabase db = new StudentDatabase();
-        Storage storage = new Storage("./data/DextroStudentList.txt");
-        Student student = new Student.Builder("John").build();
-        db.addStudent(student);
-        AddCommand cmd = new AddCommand(db.getStudentCount() + 1, "CS1010", Grade.A, null);
-        CommandResult result = cmd.execute(db, storage);
-        assertEquals("Invalid student index", result.getMessage());
+    void execute_indexTooHigh_returnsInvalidMessage() {
+        assertThrows(CommandException.class,
+                () -> new AddCommand(99, "CS2113", Grade.A, null).execute(db, storage));
     }
 
+    @Test
+    void execute_emptyDb_returnsInvalidMessage() {
+        StudentDatabase emptyDb = new StudentDatabase();
+        assertThrows(CommandException.class,
+                () -> new AddCommand(1, "CS2113", Grade.A, null).execute(emptyDb, storage));
+    }
 
     @Test
-    void undo_afterExecute_resultMessageContainsModuleCode() throws CommandException {
-        StudentDatabase db = new StudentDatabase();
-        Storage storage = new Storage("./data/DextroStudentList.txt");
-        Student student = new Student.Builder("John").build();
-        db.addStudent(student);
-        AddCommand cmd = new AddCommand(1, "CS1010", Grade.A, null);
+    void execute_invalidIndex_noModuleAdded() {
+        assertThrows(CommandException.class,
+                () -> new AddCommand(99, "CS2113", Grade.A, null).execute(db, storage));
+        assertEquals(0, student.getModules().size());
+    }
+    // ===== undo =====
+
+    @Test
+    void undo_afterExecute_moduleRemoved() throws CommandException {
+        AddCommand cmd = new AddCommand(1, "CS2113", Grade.A, 4);
+        cmd.execute(db, storage);
+        assertEquals(1, student.getModules().size());
+        cmd.undo(db, storage);
+        assertEquals(0, student.getModules().size());
+    }
+
+    @Test
+    void undo_afterExecute_messageContainsModuleCode() throws CommandException {
+        AddCommand cmd = new AddCommand(1, "CS2113", Grade.A, 4);
         cmd.execute(db, storage);
         CommandResult result = cmd.undo(db, storage);
-        assertTrue(result.getMessage().contains("CS1010"));
+        assertTrue(result.getMessage().contains("CS2113"));
     }
 
     @Test
     void undo_withoutExecute_throwsCommandException() {
-        StudentDatabase db = new StudentDatabase();
-        Storage storage = new Storage("./data/DextroStudentList.txt");
-        Student student = new Student.Builder("John").build();
-        db.addStudent(student);
-        AddCommand cmd = new AddCommand(1, "CS1010", Grade.A, null);
+        AddCommand cmd = new AddCommand(1, "CS2113", Grade.A, null);
         assertThrows(CommandException.class, () -> cmd.undo(db, storage));
     }
-
 
     @Test
-    void undo_calledTwice_throwsCommandExceptionOnSecondCall() throws CommandException {
-        StudentDatabase db = new StudentDatabase();
-        Storage storage = new Storage("./data/DextroStudentList.txt");
-        Student student = new Student.Builder("John").build();
-        db.addStudent(student);
-        AddCommand cmd = new AddCommand(1, "CS1010", Grade.A, null);
+    void undo_calledTwice_throwsCommandExceptionOnSecond() throws CommandException {
+        AddCommand cmd = new AddCommand(1, "CS2113", Grade.A, null);
         cmd.execute(db, storage);
         cmd.undo(db, storage);
-        // wasExecuted is still true but module is gone — second undo should fail
         assertThrows(CommandException.class, () -> cmd.undo(db, storage));
     }
 
-    // ===== isUndoable / execute(db) / undo(db) =====
+    @Test
+    void undo_singleOverload_returnsNull() throws CommandException {
+        assertNull(new AddCommand(1, "CS2113", Grade.A, null).undo(db));
+    }
+
+    @Test
+    void undo_undoesCorrectModuleWhenMultipleExist() throws CommandException {
+        // Add two modules, undo the second
+        AddCommand cmd1 = new AddCommand(1, "CS2113", Grade.A, 4);
+        AddCommand cmd2 = new AddCommand(1, "MA1521", Grade.B, 4);
+        cmd1.execute(db, storage);
+        cmd2.execute(db, storage);
+        cmd2.undo(db, storage);
+        assertEquals(1, student.getModules().size());
+        assertEquals("CS2113", student.getModules().get(0).getCode());
+    }
+
+    // ===== isUndoable / execute(db) =====
 
     @Test
     void isUndoable_alwaysReturnsTrue() {
-        StudentDatabase db = new StudentDatabase();
-        Student student = new Student.Builder("John").build();
-        db.addStudent(student);
-        AddCommand cmd = new AddCommand(1, "CS1010", Grade.A, null);
-        assertTrue(cmd.isUndoable());
+        assertTrue(new AddCommand(1, "CS2113", Grade.A, null).isUndoable());
     }
 
     @Test
     void execute_dbOnlyOverload_returnsNull() throws CommandException {
-        StudentDatabase db = new StudentDatabase();
-        Student student = new Student.Builder("John").build();
-        db.addStudent(student);
-        AddCommand cmd = new AddCommand(1, "CS1010", Grade.A, null);
-        assertNull(cmd.execute(db));
+        assertNull(new AddCommand(1, "CS2113", Grade.A, null).execute(db));
     }
 }

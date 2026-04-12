@@ -11,6 +11,7 @@ public final class Config {
     public static final String CMD_SORT = "sort";
     public static final String CMD_EXIT = "exit";
     public static final String CMD_FIND = "find";
+    public static final String CMD_HELP = "help";
 
     //Module commands
     public static final String CMD_ADD = "add";

@@ -41,13 +41,27 @@ public class App {
                 CommandResult result = command.execute(db, storage);
                 Ui.show(result.getMessage());
 
-                // Add command to history if it's undoable
-                if (command.isUndoable()) {
-                    history.push(command);
-                }
-
-                if (result.shouldExit()) {
-                    break;
+                if (result.requiresConfirmation()) {
+                    System.out.print("> ");
+                    String confirmation = ui.readCommand();
+                    if (confirmation != null && confirmation.trim().equalsIgnoreCase("y")) {
+                        Command confirmed = result.getPendingCommand();
+                        CommandResult finalResult = confirmed.execute(db, storage);
+                        Ui.show(finalResult.getMessage());
+                        if (confirmed.isUndoable()) {
+                            history.push(confirmed); // ForceCreateCommand, not the original
+                        }
+                    } else {
+                        Ui.show("Creation cancelled.");
+                        // nothing pushed — undo history is clean
+                    }
+                } else {
+                    if (command.isUndoable()) {
+                        history.push(command);
+                    }
+                    if (result.shouldExit()) {
+                        break;
+                    }
                 }
 
             } catch (ParseException | CommandException | IllegalArgumentException e) {

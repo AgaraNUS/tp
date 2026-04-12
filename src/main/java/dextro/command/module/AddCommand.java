@@ -33,7 +33,7 @@ public class AddCommand implements Command {
     @Override
     public CommandResult execute(StudentDatabase db, Storage storage) {
         if (index < 1 || index > db.getStudentCount()) {
-            return new CommandResult("Invalid student index");
+            throw new CommandException("Student at index " + index + " does not exist");
         }
 
         Student student = db.getStudent(index-1);
@@ -43,13 +43,14 @@ public class AddCommand implements Command {
         } else {
             module = new Module(moduleCode, grade);
         }
-        student.addModule(module);
-        storage.saveStudentList(db);
-        wasExecuted = true;
-
-        return new CommandResult(
-                "Added module " + moduleCode + " (" + grade + ") to " + student.getName()
-        );
+        try {
+            student.addModule(module);
+            storage.saveStudentList(db);
+            wasExecuted = true;
+            return new CommandResult("Added module " + moduleCode + " (" + grade + ") to " + student.getName());
+        } catch (IllegalArgumentException e) {
+            return new CommandResult("Error: " + e.getMessage());
+        }
     }
 
     @Override
