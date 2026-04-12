@@ -15,17 +15,7 @@ public enum Grade {
     SATISFACTORY("S", 0.0, false, true),
     UNSATISFACTORY("U", 0.0, false, false),
     COMPLETED_SATISFACTORY("CS", 0.0, false, true),
-    COMPLETED_UNSATISFACTORY("CU", 0.0, false, false),
-    INCOMPLETE("IC", 0.0, false, false),
-    IN_PROGRESS("IP", 0.0, false, false),
-    AUDIT("AUD", 0.0, false, false),
-    EXEMPTED("EXE", 0.0, false, false),
-    WITHDRAWN("W", 0.0, false, false),
-    WITHDRAWAL_FROM_UNIVERSITY("WU", 0.0, false, false),
-    DISTINCTION("DT", 5.0, true, true),
-    MERIT("M", 4.0, true, true),
-    PASS("Pass", 3.0, true, true),
-    FAIL("Fail", 0.0, true, true);
+    COMPLETED_UNSATISFACTORY("CU", 0.0, false, false);
 
     private final String label;
     private final double cap;

@@ -7,6 +7,7 @@ import dextro.command.DeleteCommand;
 import dextro.command.EditCommand;
 import dextro.command.ExitCommand;
 import dextro.command.FindCommand;
+import dextro.command.HelpCommand;
 import dextro.command.SearchCommand;
 import dextro.command.SortCommand;
 import dextro.command.ListCommand;
@@ -39,7 +40,7 @@ public class Parser {
         case Config.CMD_DELETE -> parseDelete(arguments);
         case Config.CMD_ADD -> parseAdd(arguments);
         case Config.CMD_REMOVE -> parseRemove(arguments);
-        case Config.CMD_LIST -> new ListCommand();
+        case Config.CMD_LIST -> parseList(arguments);
         case Config.CMD_STATUS -> parseStatus(arguments);
         case Config.CMD_UNDO -> parseUndo();
         case Config.CMD_SEARCH -> parseSearch(arguments);
@@ -47,93 +48,28 @@ public class Parser {
         case Config.CMD_FIND -> parseFind(arguments);
         case Config.CMD_EXIT -> new ExitCommand();
         case Config.CMD_EDIT -> parseEdit(arguments);
-        default -> throw new ParseException("Unknown command: " + commandWord);
+        case Config.CMD_HELP -> new HelpCommand();
+        default -> throw new ParseException("Unknown command: " + commandWord +
+                ". For info on available commands, try \"help\".");
         };
-    }
-
-    private String validateName(String name) throws ParseException {
-        if (name == null || name.isBlank()) {
-            throw new ParseException("Name is compulsory for create command");
-        }
-
-        if (name.length() > 100) {
-            throw new ParseException("Name too long, must be less than 100 chars");
-        }
-
-        return name;
-    }
-
-    private String validatePhone(String phone) throws ParseException {
-        if (phone == null) {
-            return null;
-        }
-
-        if (!phone.matches("\\d{8}")) {
-            throw new ParseException("Phone number must be 8 numerical digits");
-        }
-
-        int firstDigit = phone.charAt(0) - '0';
-        if (firstDigit < 8 || firstDigit > 9) {
-            throw new ParseException("Phone number is not a valid Singapore mobile number");
-        }
-
-        return phone;
-    }
-
-    private String validateEmail(String email) throws ParseException {
-        if (email == null) {
-            return null;
-        }
-
-        if (!email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)+$")) {
-            throw new ParseException("Invalid email format");
-        }
-
-        return email;
-    }
-
-    private String validateAddress(String address) throws ParseException {
-        if (address == null) {
-            return null;
-        }
-
-        if (address.length() > 200) {
-            throw new ParseException("Address too long, must be less than 200 chars");
-        }
-
-        return address;
-    }
-
-    private String validateModuleCode(String moduleCode) throws ParseException {
-        if (!moduleCode.matches("^[A-Z]{2,4}\\d{4}[A-Z0-9]{0,5}$")) {
-            throw new ParseException("Invalid module code: " + moduleCode);
-        } else {
-            return moduleCode;
-        }
-    }
-
-    private Grade validateGrade(String grade) throws ParseException {
-        try {
-            return Grade.fromString(grade.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new ParseException("Invalid grade: " + grade);
-        }
     }
 
     private Command parseCreate(String args) throws ParseException {
         ArgumentTokenizer tokenizer = new ArgumentTokenizer(args, "n/", "p/", "e/", "a/", "c/");
 
-        String name = validateName(tokenizer.getValue("n/"));
-        String phone = validatePhone(tokenizer.getValue("p/"));
-        String email = validateEmail(tokenizer.getValue("e/"));
-
-        String address = validateAddress(tokenizer.getValue("a/"));
-        String course = tokenizer.getValue("c/");
+        String name    = Validator.validateName(Normalizer.normalizeName(tokenizer.getValue("n/")));
+        String phone   = Validator.validatePhone(Normalizer.normalizePhone(tokenizer.getValue("p/")));
+        String email   = Validator.validateEmail(Normalizer.normalizeEmail(tokenizer.getValue("e/")));
+        String address = Validator.validateAddress(Normalizer.normalizeAddress(tokenizer.getValue("a/")));
+        String course  = Normalizer.normalizeCourse(tokenizer.getValue("c/"));
 
         return new CreateCommand(name, phone, email, address, course);
     }
 
     private Command parseDelete(String args) throws ParseException {
+        if (args.strip().isBlank()) {
+            throw new ParseException("Delete requires an integer index");
+        }
         try {
             int index = Integer.parseInt(args);
             return new DeleteCommand(index);
@@ -162,9 +98,8 @@ public class Parser {
             throw new ParseException("Module format must be CODE/GRADE[/CREDITS] (e.g., CS2113/A or CS2113/A/2)");
         }
 
-        String moduleCode = validateModuleCode(parts[0].toUpperCase());
-
-        Grade grade = validateGrade(parts[1].toUpperCase());
+        String moduleCode = Validator.validateModuleCode(parts[0].toUpperCase().strip());
+        Grade grade = Validator.validateGrade(parts[1].toUpperCase().strip());
 
         if (parts.length == 2) {
             return new AddCommand(index, moduleCode, grade, null);
@@ -194,8 +129,16 @@ public class Parser {
         } catch (NumberFormatException e) {
             throw new ParseException("Invalid student index: " + tokens[0]);
         }
-        String moduleCode = tokens[1]; // e.g., CS2113
+        String moduleCode = tokens[1].strip().toUpperCase();
         return new RemoveCommand(index, moduleCode);
+    }
+
+    private Command parseList(String args) throws ParseException {
+        if (args.strip().isBlank()) {
+            return new ListCommand();
+        } else {
+            throw new ParseException("List command does not take arguments");
+        }
     }
 
     private Command parseEdit(String args) throws ParseException {
@@ -214,27 +157,35 @@ public class Parser {
         int sepIndex = args.indexOf(" ");
         String attributes = (sepIndex == -1) ? "" : args.substring(sepIndex + 1);
 
-        //the command requires at least one edit field
         if (attributes.isEmpty()) {
             throw new ParseException("Edit requires at least one field (e.g., n/John or m/CS2113/A).");
         }
 
-        //attributes must begin with a valid prefix
         if (!attributes.matches("^(n/|p/|e/|a/|c/|m/).*")) {
             throw new ParseException(
                     "Invalid formatting. Use prefixes: n/, p/, e/, a/, c/, m/. Example: edit 1 m/CS2113/A");
         }
 
-
         ArgumentTokenizer tokenizer = new ArgumentTokenizer(attributes, "n/", "p/", "e/", "a/", "c/", "m/");
-        String name = tokenizer.getValue("n/");
-        String phone = tokenizer.getValue("p/");
-        String email = tokenizer.getValue("e/");
-        String address = tokenizer.getValue("a/");
-        String course = tokenizer.getValue("c/");
+
+        String rawName    = tokenizer.getValue("n/");
+        String rawPhone   = tokenizer.getValue("p/");
+        String rawEmail   = tokenizer.getValue("e/");
+        String rawAddress = tokenizer.getValue("a/");
+        String rawCourse  = tokenizer.getValue("c/");
         String moduleValue = tokenizer.getValue("m/");
 
-        // parse moduleCode and grade out of "CODE/GRADE"
+        String name    = rawName    != null ?
+                Validator.validateName(Normalizer.normalizeName(rawName))           : null;
+        String phone   = rawPhone   != null ?
+                Validator.validatePhone(Normalizer.normalizeGeneral(rawPhone))      : null;
+        String email   = rawEmail   != null ?
+                Validator.validateEmail(Normalizer.normalizeEmail(rawEmail))        : null;
+        String address = rawAddress != null ?
+                Validator.validateAddress(Normalizer.normalizeGeneral(rawAddress))  : null;
+        String course  = rawCourse  != null ?
+                Normalizer.normalizeGeneral(rawCourse)                              : null;
+
         String moduleCode = null;
         Grade grade = null;
         Integer credits = null;
@@ -244,12 +195,12 @@ public class Parser {
                 throw new ParseException("Module format must be CODE/GRADE[/CREDITS] " +
                         "(e.g., m/CS2113/A or m/CS2113/A/2)");
             }
-            moduleCode = validateModuleCode(parts[0].trim().toUpperCase());
-            grade = validateGrade(parts[1].trim().toUpperCase());
+            moduleCode = Validator.validateModuleCode(parts[0].strip().toUpperCase());
+            grade = Validator.validateGrade(parts[1].strip().toUpperCase());
 
             if (parts.length >= 3) {
                 try {
-                    credits = Integer.parseInt(parts[2].trim());
+                    credits = Integer.parseInt(parts[2].strip());
                     if (credits <= 0) {
                         throw new ParseException("Credits must be a positive integer");
                     }
@@ -288,14 +239,13 @@ public class Parser {
             if (course.isBlank()) {
                 throw new ParseException("Course search query cannot be empty.");
             }
-            return new SearchCommand(course, null);
+            return new SearchCommand(course.strip(), null);
         } else if (module != null) {
             if (module.isBlank()) {
                 throw new ParseException("Module search query cannot be empty.");
             }
-            return new SearchCommand(null, module);
+            return new SearchCommand(null, module.strip());
         } else {
-            // Throw the requested error if no valid prefixes are used
             throw new ParseException("I'm sorry, I think you meant to use the find function? " +
                     "The search function only works if you input a valid prefix (e.g., c/CS or m/CS2113).");
         }
@@ -319,7 +269,7 @@ public class Parser {
         if (args == null || args.isBlank()) {
             throw new ParseException("Find query cannot be empty.");
         }
-        return new FindCommand(args.trim());
+        return new FindCommand(args.strip());
     }
 
     private Command parseUndo() throws ParseException {

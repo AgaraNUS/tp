@@ -17,7 +17,6 @@ RemoveCommand
 Command
 CommandResult
 CreateCommand
-DeleteCommand
 ListCommand
 Config
 CommandException
@@ -37,9 +36,6 @@ Main
 #### New Feature: Create
 A way for users to add a new student record by inputting name and other optional fields.
 
-#### New Feature: Delete
-A way for users to delete existing student records based on id number
-
 #### New Feature: List
 A way to view the entire database, or ranges of id numbers
 
@@ -51,6 +47,9 @@ A way to remove a module that matches the given code in a student's data
 
 #### Enhancement to ArgumentTokenizer
 Improved robustness against badly formed inputs by throwing an exception when 
+
+#### Enhancement to Edit
+
 
 ### Contributions to the User Guide
 - Wrote the descriptions and examples to the following functions: ```create, delete, edit, list, find, search, status, undo, sort, exit, add, remove```
@@ -81,3 +80,5 @@ Created the write-ups and diagrams for the above listed items.
 - Reminded team members on deadlines 
 - Suggested new features
 - Approve PRs
+- Released v2.0.1
+- Sorted and assigned all the bugs from PE-D to the respective dev

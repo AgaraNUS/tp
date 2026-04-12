@@ -30,7 +30,8 @@ public class ArgumentTokenizer {
             }
 
             if (tokenMap.containsKey(matchedPrefix)) {
-                throw new ParseException("Duplicate prefix: \"" + matchedPrefix + "\" at index: " + cursor);
+                throw new ParseException(
+                        "Duplicate prefix: \"" + matchedPrefix + "\" found. Please use each prefix only once");
             }
 
             int valueStart = cursor + matchedPrefix.length();

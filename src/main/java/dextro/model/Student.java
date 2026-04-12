@@ -53,6 +53,13 @@ public class Student {
     }
 
     public void addModule(Module module) {
+        for (Module m : modules) {
+            if (m.getCode().equals(module.getCode())) {
+                throw new IllegalArgumentException(
+                        "Module " + module.getCode() + " already exists for this student."
+                );
+            }
+        }
         modules.add(module);
     }
 
@@ -128,7 +135,7 @@ public class Student {
         }
 
         public Builder(Student existing) {
-            this.name = existing.name;     
+            this.name = existing.name;
             this.phone = existing.phone;
             this.email = existing.email;
             this.address = existing.address;
@@ -137,7 +144,7 @@ public class Student {
 
         public Builder name(String name) {
             if (name != null && !name.isBlank()) {
-                this.name = name;  
+                this.name = name;
             }
             return this;
         }

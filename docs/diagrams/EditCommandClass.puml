@@ -70,20 +70,6 @@ enum Grade <<enum>>{
     D_PLUS
     D
     F
-    SATISFACTORY
-    UNSATISFACTORY
-    COMPLETED_SATISFACTORY
-    COMPLETED_UNSATISFACTORY
-    INCOMPLETE
-    IN_PROGRESS
-    AUDIT
-    EXEMPTED
-    WITHDRAWN
-    WITHDRAWAL_FROM_UNIVERSITY
-    DISTINCTION
-    MERIT
-    PASS
-    FAIL
     -label: String
     -cap: double
     -countsToGpa: boolean

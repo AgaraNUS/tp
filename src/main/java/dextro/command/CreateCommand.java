@@ -1,5 +1,9 @@
 package dextro.command;
 
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import dextro.app.Storage;
 import dextro.exception.CommandException;
 import dextro.model.Student;
@@ -29,19 +33,38 @@ public class CreateCommand implements Command {
 
     @Override
     public CommandResult execute(StudentDatabase db, Storage storage) {
-        Student student = new Student.Builder(name)
-                .phone(phone)
-                .email(email)
-                .address(address)
-                .course(course)
-                .build();
+        Map<Student, List<String>> conflicts = db.findDuplicateFields(name, phone, email, address);
 
+        if (!conflicts.isEmpty()) {
+            Set<String> allMatchedFields = new LinkedHashSet<>();
+            conflicts.values().forEach(allMatchedFields::addAll);
+
+            StringBuilder warning = new StringBuilder();
+            warning.append("Warning: at least one student shares the following fields: ")
+                    .append(String.join(", ", allMatchedFields))
+                    .append("\n");
+
+            for (Map.Entry<Student, List<String>> entry : conflicts.entrySet()) {
+                Student s = entry.getKey();
+                int displayIndex = db.getAllStudents().indexOf(s) + 1;
+                warning.append(displayIndex).append(": ").append(s).append("\n");
+            }
+
+            warning.append("Type 'y' to confirm, or anything else to cancel.");
+            return new CommandResult(warning.toString().trim(),
+                    new ForceCreateCommand(name, phone, email, address, course));
+        }
+
+        return doCreate(db, storage);
+    }
+
+    CommandResult doCreate(StudentDatabase db, Storage storage) {
+        Student student = new Student.Builder(name)
+                .phone(phone).email(email).address(address).course(course).build();
         db.addStudent(student);
         storage.saveStudentList(db);
         createdIndex = db.getStudentCount() - 1;
-
-        String message = String.format("Student created: %s", student.getName());
-        return new CommandResult(message);
+        return new CommandResult("Student created: " + student.getName());
     }
 
     @Override

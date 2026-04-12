@@ -28,7 +28,7 @@ public class RemoveCommand implements Command {
     public CommandResult execute(StudentDatabase db, Storage storage) {
 
         if (index < 1 || index > db.getStudentCount()) {
-            return new CommandResult("Invalid student index");
+            throw new CommandException("Student at index " + index + " does not exist");
         }
 
         Student student = db.getStudent(index - 1);
