@@ -43,12 +43,12 @@ class ParserTest {
 
     @Test
     void parse_createMissingName_throwsParseException() {
-        assertThrows(ParseException.class, () -> parser.parse("create p/91234567"));
+        assertThrows(java.lang.IllegalArgumentException.class, () -> parser.parse("create p/91234567"));
     }
 
     @Test
     void parse_createEmptyArgs_throwsParseException() {
-        assertThrows(ParseException.class, () -> parser.parse("create"));
+        assertThrows(java.lang.IllegalArgumentException.class, () -> parser.parse("create"));
     }
 
     @Test

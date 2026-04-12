@@ -61,7 +61,7 @@ public class Parser {
         String phone   = Validator.validatePhone(Normalizer.normalizePhone(tokenizer.getValue("p/")));
         String email   = Validator.validateEmail(Normalizer.normalizeEmail(tokenizer.getValue("e/")));
         String address = Validator.validateAddress(Normalizer.normalizeAddress(tokenizer.getValue("a/")));
-        String course  = Normalizer.normalizeCourse(tokenizer.getValue("c/"));
+        String course  = Validator.validateCourse(Normalizer.normalizeCourse(tokenizer.getValue("c/")));
 
         return new CreateCommand(name, phone, email, address, course);
     }
@@ -184,7 +184,7 @@ public class Parser {
         String address = rawAddress != null ?
                 Validator.validateAddress(Normalizer.normalizeGeneral(rawAddress))  : null;
         String course  = rawCourse  != null ?
-                Normalizer.normalizeGeneral(rawCourse)                              : null;
+                Validator.validateCourse(Normalizer.normalizeGeneral(rawCourse))    : null;
 
         String moduleCode = null;
         Grade grade = null;

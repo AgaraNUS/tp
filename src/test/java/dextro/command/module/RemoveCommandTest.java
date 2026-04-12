@@ -89,24 +89,27 @@ class RemoveCommandTest {
         new RemoveCommand(1, "CG2027").execute(db, storage);
         assertEquals(2, student.getModules().size());
     }
-
     @Test
-    void execute_invalidIndexZero_returnsInvalidMessage() {
-        CommandResult result = new RemoveCommand(0, "CS2113").execute(db, storage);
-        assertEquals("Invalid student index", result.getMessage());
+    void execute_invalidIndexZero_throwsException() {
+        CommandException ex = assertThrows(CommandException.class,
+                () -> new RemoveCommand(0, "CS2113").execute(db, storage));
+        assertEquals("Student at index 0 does not exist", ex.getMessage());
     }
 
     @Test
-    void execute_invalidIndexTooHigh_returnsInvalidMessage() {
-        CommandResult result = new RemoveCommand(99, "CS2113").execute(db, storage);
-        assertEquals("Invalid student index", result.getMessage());
+    void execute_invalidIndexTooHigh_throwsException() {
+        CommandException ex = assertThrows(CommandException.class,
+                () -> new RemoveCommand(99, "CS2113").execute(db, storage));
+        assertEquals("Student at index 99 does not exist", ex.getMessage());
     }
 
     @Test
-    void execute_emptyDb_returnsInvalidMessage() {
+    void execute_emptyDb_throwsException() {
         StudentDatabase emptyDb = new StudentDatabase();
-        CommandResult result = new RemoveCommand(1, "CS2113").execute(emptyDb, storage);
-        assertEquals("Invalid student index", result.getMessage());
+
+        CommandException ex = assertThrows(CommandException.class,
+                () -> new RemoveCommand(1, "CS2113").execute(emptyDb, storage));
+        assertEquals("Student at index 1 does not exist", ex.getMessage());
     }
 
     @Test

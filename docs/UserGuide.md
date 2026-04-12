@@ -9,10 +9,10 @@ Dextro will track students' progress and provide insights on how a student is fa
 ## Quick Start
 
 1. Ensure Java 17 is installed. Mac users: Ensure you have the precise JDK version prescribed here.
-1. Download latest `dextro.jar` file.
-1. Copy the file to the folder you want to use as the home folder for Dextro.
-1. Open a command terminal, cd into the folder you put the jar file in, and use the `java -jar dextro.jar` command to run the application.
-1. Proceed to execute commands, refer to the Features below for details of each command.
+2. Download latest `dextro.jar` file.
+3. Copy the file to the folder you want to use as the home folder for Dextro.
+4. Open a command terminal, cd into the folder you put the jar file in, and use the `java -jar dextro.jar` command to run the application.
+5. Proceed to execute commands, refer to the Features below for details of each command.
 
 ## Features
 
@@ -84,7 +84,7 @@ edit 1 n/Jane Doe p/98765432 m/CG2027/B/2
 ```
 Minimum of one field must be provided. Repeated fields not allowed. Order of fields does not matter.
 
-If the requested edit does not modify anything, the program will output a successful result anyways.
+If the requested edit does not modify anything, the program will output a successful result anyway.
 
 Prefixes must be separated from text before with a space. Example:
 ```
@@ -207,7 +207,7 @@ add INDEX CODE/GRADE[/CREDITS]
 
 **Example:**
 ```
-> add 1 CS1010/A
+> add 1 CS2113/A
 ----------------------------------------------------------------------------------------------------
 Added module CS2113 (A) to john
 ----------------------------------------------------------------------------------------------------
@@ -215,8 +215,12 @@ Added module CS2113 (A) to john
 ----------------------------------------------------------------------------------------------------
 Added module MA1511 (B+) to john
 ----------------------------------------------------------------------------------------------------
+> add 1 MA1511/B
+----------------------------------------------------------------------------------------------------
+Error: Module MA1511 already exists for this student.
+----------------------------------------------------------------------------------------------------
 ```
-Adding duplicate modules under the same student is allowed, to accommodate module retakes.
+Adding duplicate modules under the same student is not allowed.
 
 Modules are validated against a pattern that fits all existing NUS module codes; non-existent modules that follow the same format are allowed.
 
@@ -240,32 +244,41 @@ CODE is case-insensitive
 
 ---
 
-##  Data Field Info
+##  Field Constraints
 - `n/` → Name
   - Must be less than 100 characters long.
-  - Must contain only letters and special chars `, ( ) . - / @ '`
+  - Must contain only letters, spaces, and the following special symbols: `, ( ) . - / @ '`
   - Case is stored as given.
 - `p/` → Phone number
   - Only valid Singaporean mobile number is allowed, i.e. begins with 8 or 9.
+  - Must consist of only 8 digits.
 - `e/` → Email address
-  - Local portion allows only letters, numbers and special chars `. _ % + -`
-  - Must contain a `@` symbol
-  - Domain portion allows only letters, numbers, hyphens and at least one dot `.`
-  - Case-insensitive, converted to lowercase when stored and displayed
+  - Must follow valid email address format:
+    - Must contain a `@` symbol
+    - Local part allows letters, numbers and `. _ % + -`
+    - Domain must contain at least one `.`
+  - Case-insensitive, converted to lowercase when stored and displayed.
 - `a/` → Home address
-  - Must be less than 200 characters long
+  - Must be less than 200 characters long.
+  - Must contain only alphanumeric symbols, spaces and the following special symbols: `, . # - / ( ) &`
   - Case is stored as given.
 - `c/` → Course
-  - Must be less than 100 characters long
-  - Case-insensitive, converted to uppercase when stored and displayed
+  - Must be less than 50 characters long.
+  - Must contain only letters, spaces and the following special symbols: `, ( ) & -`
+  - Case is stored as given.
 - `m/` → Module
-  - CODE Must follow the same format as actual NUS modules. Strings that follow the same format are allowed.
+  - CODE must follow the same format as actual NUS modules.
+  - CODE must consist only of alphanumeric symbols.
   - CODE and GRADE case-insensitive, converted to uppercase when stored and displayed
 - `INDEX` → Index shown in the list
 
 ---
 
 ##  Command Format Notes
+- Command keywords are case-insensitive. For example, `create`, `CREATE`, and `Create` will all invoke the same command.
+- Prefixes (e.g., `n/`, `p/`, `e/`) remain case-sensitive unless otherwise specified.
+- Data fields (e.g., names, addresses) preserve the case entered by the user unless stated otherwise. See Data Field Info.
+- Prefixes must be preceded by a space to be recognized as separate fields.
 
 ## FAQ
 
@@ -273,14 +286,121 @@ CODE is case-insensitive
 
 **A**: Navigate to /data/DextroStudentList.txt and replace the target computer's file.
 
+**Q**: Will my data be saved automatically?
+
+**A**: Yes. All changes are saved automatically to the data file after each command.
+
+**Q**: How do I clear all data?
+
+**A**: Delete the `/data/DextroStudentList.txt` file and restart the application.
+
+**Q**: Why is my command not working?
+
+**A**: Ensure that:
+- Prefixes (e.g., n/, p/) are separated by a space
+- Required fields are provided
+- No duplicate prefixes are used
+
+**Q**: Why am I seeing a duplicate warning?
+
+**A**: The system detected another student with the same phone, email, or address. Enter `y` to confirm creation, or any other input to cancel.
+
+**Q**: Can I undo all commands?
+
+**A**: Most commands can be undone using `undo`. Some commands (e.g., sort) may not be undoable.
+
+**Q**: Why is my input being parsed incorrectly?
+
+**A**: Prefixes must be preceded by a space. Otherwise, they will be treated as part of the previous field.
+
+**Q**: Why can’t I add a module?
+
+**A**: Ensure the format is `CODE/GRADE[/CREDITS]` (e.g., `CS2113/A` or `CS2113/A/4`).
+
+**Q**: What is the difference between `find` and `search`?
+
+**A**:
+- `find` searches across all fields using a keyword
+- `search` filters by a specific field (e.g., course or module)
+
+**Q**: Why does it say the index is invalid?
+
+**A**: Ensure the index is a valid number shown in the current list.
+
+
 ## Command Summary
 
-* Add student named John Lim Jun Jie with a phone number 88664422:
+* Create a student with full details:
 ```
-create n/John Lim Jun Jie p/88664422
+create n/John Doe p/91234567 e/john@u.nus.edu a/PGP Block 12 #03-123 c/Computer Science
 ```
-* Add module CS2113/B+ to John's info:
+
+* Create a student with only a name:
 ```
-find John Lim Jun Jie
-add <student_id> m/CS2113/B+
+create n/Jane Tan
+```
+
+* List all students:
+```
+list
+```
+
+* Find students by keyword:
+```
+find John
+```
+
+* Search students by course:
+```
+search c/Computer Science
+```
+
+* Search students by module:
+```
+search m/CS2113
+```
+
+* Edit a student’s details:
+```
+edit 1 n/John Upgraded p/98765432
+```
+
+* Add a module to a student:
+```
+add 1 CS2113/A
+```
+
+* Add a module with credits:
+```
+add 1 MA1512/B+/2
+```
+
+* Remove a module:
+```
+remove 1 CS2113
+```
+
+* Delete a student:
+```
+delete 1
+```
+
+* View student status:
+```
+status 1
+```
+
+* Sort students by CAP:
+```
+sort cap
+```
+
+* Undo the last action:
+```
+undo
+```
+
+* Exit the application:
+```
+exit
 ```

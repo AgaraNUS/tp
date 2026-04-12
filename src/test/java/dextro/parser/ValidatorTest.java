@@ -40,8 +40,7 @@ class ValidatorTest {
 
     @Test
     void validateName_multipleSpaces_collapsedToOne() throws Exception {
-        assertEquals("JOHN  DOE", Validator.validateName("JOHN  DOE")); // replaceAll condenses
-        // actually replaceAll("\\s+", " ") would make it "JOHN DOE"
+        assertEquals("JOHN DOE", Validator.validateName("JOHN  DOE"));
         assertEquals("JOHN DOE", Validator.validateName("JOHN   DOE"));
     }
 

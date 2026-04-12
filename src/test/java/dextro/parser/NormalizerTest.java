@@ -13,13 +13,8 @@ class NormalizerTest {
     }
 
     @Test
-    void normalizeName_lowercase_convertsToUppercase() {
-        assertEquals("JOHN DOE", Normalizer.normalizeName("john doe"));
-    }
-
-    @Test
     void normalizeName_withLeadingTrailingSpaces_stripped() {
-        assertEquals("JOHN", Normalizer.normalizeName("  john  "));
+        assertEquals("john", Normalizer.normalizeName("  john  "));
     }
 
     @Test

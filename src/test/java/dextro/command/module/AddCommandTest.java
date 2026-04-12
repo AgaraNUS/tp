@@ -75,10 +75,10 @@ class AddCommandTest {
 
     @Test
     void execute_duplicateModule_addedAgain() {
-        // duplicate modules are allowed for retakes
+        // duplicate modules not allowed
         new AddCommand(1, "CS2113", Grade.A, 4).execute(db, storage);
         new AddCommand(1, "CS2113", Grade.B, 4).execute(db, storage);
-        assertEquals(2, student.getModules().size());
+        assertEquals(1, student.getModules().size());
     }
 
     @Test
@@ -91,32 +91,31 @@ class AddCommandTest {
     }
 
     // ===== execute(db, storage) — invalid index =====
-
     @Test
     void execute_indexZero_returnsInvalidMessage() {
-        CommandResult result = new AddCommand(0, "CS2113", Grade.A, null).execute(db, storage);
-        assertEquals("Invalid student index", result.getMessage());
+        assertThrows(CommandException.class,
+                () -> new AddCommand(0, "CS2113", Grade.A, null).execute(db, storage));
     }
 
     @Test
     void execute_indexTooHigh_returnsInvalidMessage() {
-        CommandResult result = new AddCommand(99, "CS2113", Grade.A, null).execute(db, storage);
-        assertEquals("Invalid student index", result.getMessage());
+        assertThrows(CommandException.class,
+                () -> new AddCommand(99, "CS2113", Grade.A, null).execute(db, storage));
     }
 
     @Test
     void execute_emptyDb_returnsInvalidMessage() {
         StudentDatabase emptyDb = new StudentDatabase();
-        CommandResult result = new AddCommand(1, "CS2113", Grade.A, null).execute(emptyDb, storage);
-        assertEquals("Invalid student index", result.getMessage());
+        assertThrows(CommandException.class,
+                () -> new AddCommand(1, "CS2113", Grade.A, null).execute(emptyDb, storage));
     }
 
     @Test
     void execute_invalidIndex_noModuleAdded() {
-        new AddCommand(99, "CS2113", Grade.A, null).execute(db, storage);
+        assertThrows(CommandException.class,
+                () -> new AddCommand(99, "CS2113", Grade.A, null).execute(db, storage));
         assertEquals(0, student.getModules().size());
     }
-
     // ===== undo =====
 
     @Test

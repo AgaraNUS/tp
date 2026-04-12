@@ -140,7 +140,7 @@ class UndoCommandTest {
     void undo_withStorage_throwsCommandException() {
         UndoCommand cmd = new UndoCommand(history);
         CommandException exception = assertThrows(CommandException.class, () ->
-            cmd.undo(db, storage)
+                cmd.undo(db, storage)
         );
 
         assertEquals("Cannot undo an undo command", exception.getMessage());
@@ -270,7 +270,7 @@ class UndoCommandTest {
 
         UndoCommand undoCmd = new UndoCommand(history);
         CommandException exception = assertThrows(CommandException.class, () ->
-            undoCmd.execute(db, storage)
+                undoCmd.execute(db, storage)
         );
 
         assertEquals("Undo failed intentionally", exception.getMessage());
@@ -281,7 +281,13 @@ class UndoCommandTest {
         int commandCount = 50;
 
         for (int i = 0; i < commandCount; i++) {
-            CreateCommand cmd = new CreateCommand("Student" + i, "91234567", "test@test.com", "Addr", "CS");
+            // unique phone, email, address per student to avoid duplicate check
+            CreateCommand cmd = new CreateCommand(
+                    "Student" + i,
+                    "9" + String.format("%07d", i),  // e.g. 90000000, 90000001...
+                    "student" + i + "@test.com",
+                    "Addr" + i,
+                    "CS");
             cmd.execute(db, storage);
             history.push(cmd);
         }
@@ -298,9 +304,9 @@ class UndoCommandTest {
 
     @Test
     void execute_afterPartialUndoSequence_maintainsCorrectState() throws CommandException {
-        CreateCommand cmd1 = new CreateCommand("Alice", "91234567", "alice@test.com", "Addr", "CS");
-        CreateCommand cmd2 = new CreateCommand("Bob", "98765432", "bob@test.com", "Addr", "CEG");
-        CreateCommand cmd3 = new CreateCommand("Charlie", "87654321", "charlie@test.com", "Addr", "ISC");
+        CreateCommand cmd1 = new CreateCommand("Alice", "91234567", "alice@test.com", "Addr1", "CS");
+        CreateCommand cmd2 = new CreateCommand("Bob", "98765432", "bob@test.com", "Addr2", "CEG");
+        CreateCommand cmd3 = new CreateCommand("Charlie", "87654321", "charlie@test.com", "Addr3", "ISC");
 
         cmd1.execute(db, storage);
         history.push(cmd1);

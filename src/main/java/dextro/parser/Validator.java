@@ -19,7 +19,7 @@ public class Validator {
 
         if (!name.matches("^[A-Za-z ,()/.\\-@']+$")){
             throw new IllegalArgumentException(
-                    "Name must contain only alphabetical symbols, spaces and special symbols:, ( ) . - / @ '");
+                    "Name must contain only alphabets, spaces and special symbols: , ( ) . - / @ '");
         }
 
         return name.replaceAll("\\s+", " ");
@@ -64,6 +64,22 @@ public class Validator {
         }
 
         return address.replaceAll("\\s+", " ");
+    }
+
+    public static String validateCourse(String course) throws ParseException {
+        if (course == null || course.isBlank()) {
+            return null;
+        }
+
+        if (course.length() > 50) {
+            throw new ParseException("Course too long, must be less than 50 chars");
+        }
+
+        if (!course.matches("^[A-Za-z ,&()-]+$")) {
+            throw new ParseException("Course must contain only alphabets, spaces and special symbols: , & ( ) -");
+        }
+
+        return course.replaceAll("\\s+", " ");
     }
 
     public static String validateModuleCode(String moduleCode) throws ParseException {
