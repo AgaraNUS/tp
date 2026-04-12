@@ -1,1 +1,1 @@
-John/N.A./N.A./N.A./N.A./[]
+Alice/91234567/alice@test.com/123 Street/CS/[]
