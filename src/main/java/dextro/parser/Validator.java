@@ -140,10 +140,10 @@ public class Validator {
         try {
             index = Integer.parseInt(raw.strip());
         } catch (NumberFormatException e) {
-            throw new ParseException("Invalid student index: " + raw);
+            throw new ParseException("Invalid student index: " + raw + ". Index must be an integer");
         }
         if (index <= 0) {
-            throw new ParseException("Index must be a positive integer");
+            throw new ParseException("Index must be positive");
         }
         return index;
     }
