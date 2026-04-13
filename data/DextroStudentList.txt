@@ -1,1 +1,3 @@
 JOHN/N.A./N.A./N.A./N.A./[CS2113/A/4]
+janny/N.A./janny@gmail.com/N.A./N.A./[]
+John doe/91234678/email@gmail.com/bukit batok/N.A./[]
