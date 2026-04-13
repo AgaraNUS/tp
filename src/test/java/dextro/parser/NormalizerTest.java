@@ -36,4 +36,16 @@ class NormalizerTest {
     void normalizeEmail_withSpaces_stripped() {
         assertEquals("john@mail.com", Normalizer.normalizeEmail("  john@mail.com  "));
     }
+
+    @Test
+    void validateName_multipleSpaces_collapsedToOne() throws Exception {
+        assertEquals("JOHN DOE", Normalizer.normalizeName("JOHN  DOE"));
+        assertEquals("JOHN DOE", Normalizer.normalizeName("JOHN   DOE"));
+    }
+
+    @Test
+    void validateAddress_multipleSpaces_collapsedToOne() throws Exception {
+        assertEquals("House 1", Normalizer.normalizeAddress("House     1"));
+        assertEquals("House 2", Normalizer.normalizeAddress("House    2"));
+    }
 }

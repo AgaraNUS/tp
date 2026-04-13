@@ -2,7 +2,6 @@ package dextro.parser;
 
 import dextro.exception.ParseException;
 import dextro.model.Grade;
-import jakarta.mail.internet.InternetAddress;
 
 
 public class Validator {
@@ -58,10 +57,7 @@ public class Validator {
             throw new ParseException("Email local part must be 64 characters or less");
         }
 
-        try {
-            InternetAddress addr = new InternetAddress(email);
-            addr.validate();
-        } catch (Exception e) {
+        if (!email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)+$")) {
             throw new ParseException("Invalid email format");
         }
 
