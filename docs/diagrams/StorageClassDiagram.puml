@@ -3,46 +3,49 @@ skinparam classAttributeIconSize 0
 skinparam style strictuml
 
 class Storage {
-    + DEFAULT_STORAGE_FOLDERPATH: String
-    + DEFAULT_STORAGE_FILEPATH: String
-    + filePath: String
-    + Storage(String): void
-    + saveStudentList(StudentDatabase): void
-    + loadStudentList(): ArrayList<Student>
-    - decodeLineToStudent(String): Student
-    - parseModules(String): List<Module>
-    - nullOrTrimmed(String): String
-    - isValidPath(String): boolean
+    +DEFAULT_STORAGE_FOLDERPATH: String
+    +DEFAULT_STORAGE_FILEPATH: String
+    +filePath: String
+
+    +Storage(String)
+    +saveStudentList(StudentDatabase): void
+    +loadStudentList(): ArrayList~Student~
+
+    -isValidPath(String): boolean
+    -decodeLineToStudent(String): Student
+    -parseModules(String): List~Module~
+    -nullOrTrimmed(String): String
 }
 
 class StudentDatabase {
-    + getAllStudents(): List<Student>
-    + addStudent(Student): void
+    +getAllStudents(): List~Student~
 }
 
 class Student {
-    - name: String
-    - phone: String
-    - email: String
-    - course: String
-    - modules: List<Module>
-    + addModule(Module): void
-    + toString(): String
+    +toString(): String
+    +getModules(): List~Module~
 }
 
 class Module {
-    - code: String
-    - grade: Grade
-    - credits: int
-    + Module(String, Grade)
-    + Module(String, Grade, int)
-    + toString(): String
+    +Module(String, Grade)
+    +Module(String, Grade, int)
 }
 
-Storage --> StudentDatabase       : reads / writes
-Storage ..> Student               : creates via Student.Builder
-Storage ..> Module                : creates
-StudentDatabase o--> Student      : contains
-Student o--> Module               : contains              : has
+class Grade {
+    +fromString(String): Grade
+}
+
+class StorageException {
+    +StorageException(String)
+}
+
+' Relationships
+Storage "1" --> "1" StudentDatabase : saves/loads
+Storage "1" --> "0..*" Student : processes
+Storage "1" --> "0..*" Module : parses
+Storage  -->  Grade : uses
+
+Storage  ..>  StorageException : throws
+Storage  ..>  IOException : throws
 
 @enduml
