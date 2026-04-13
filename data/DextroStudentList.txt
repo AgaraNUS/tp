@@ -1,3 +1,2 @@
-JOHN/N.A./N.A./N.A./N.A./[CS2113/A/4]
-janny/N.A./janny@gmail.com/N.A./N.A./[]
-John doe/91234678/email@gmail.com/bukit batok/N.A./[]
+JOHN/N.A./N.A./N.A./N.A./[MA1521/B+/4, CS2101/B+/4]
+Alice Tan/91234567/alice@example.com/Blk 123 Clementi/Computer Science/[CS2113/A/4, MA1521/A-/4]
