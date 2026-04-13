@@ -43,7 +43,7 @@ public class SearchCommand implements Command {
                         sb.append(originalIndex).append(". ")
                                 .append(student.getName()).append(", ")
                                 .append(m.getCode()).append(": ")
-                                .append(m.getGrade().toString()).append(System.lineSeparator());
+                                .append(m.getGrade().toString()).append("\n");
                         found = true;
                     }
                 }
@@ -51,7 +51,7 @@ public class SearchCommand implements Command {
                 if (student.getPhone() != null && student.getPhone().contains(phone)) {
                     sb.append(originalIndex).append(". ")
                             .append(student.getName()).append(", ")
-                            .append(student.getPhone()).append(System.lineSeparator());
+                            .append(student.getPhone()).append("\n");
                     found = true;
                 }
             }
