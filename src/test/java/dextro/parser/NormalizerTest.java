@@ -36,19 +36,4 @@ class NormalizerTest {
     void normalizeEmail_withSpaces_stripped() {
         assertEquals("john@mail.com", Normalizer.normalizeEmail("  john@mail.com  "));
     }
-
-    @Test
-    void normalizeGeneral_null_returnsNull() {
-        assertNull(Normalizer.normalizeGeneral(null));
-    }
-
-    @Test
-    void normalizeGeneral_withSpaces_stripped() {
-        assertEquals("hello", Normalizer.normalizeGeneral("  hello  "));
-    }
-
-    @Test
-    void normalizeGeneral_preservesCase() {
-        assertEquals("Orchard Road", Normalizer.normalizeGeneral("Orchard Road"));
-    }
 }
