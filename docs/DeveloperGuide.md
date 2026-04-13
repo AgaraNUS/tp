@@ -467,7 +467,15 @@ Student Records information may be stored in a fragemented fashion, with academi
 
 ## Non-Functional Requirements
 
-{Give non-functional requirements}
+Non-functional requirements:
+- Technical requirements: The program works on both 32- and 64-bit environments
+- Usability: A new user may learn the commands in around 10 minutes of understanding the User Guide
+- Reliability: If the program crashes, data up to before the latest command was given will be
+saved in the DextroStudentList.txt file
+- Portability: Program will work in Windows, MacOS, and Linux environments
+- Maintainability: Code follows quality standards taught and uses OOP design, with extracted classes
+like Command and Object classes
+
 
 ## Glossary
 
