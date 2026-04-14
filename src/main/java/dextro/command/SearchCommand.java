@@ -123,7 +123,7 @@ public class SearchCommand implements Command {
     }
 
     /**
-     * Formats the final output string for a matched student, dynamically appending 
+     * Formats the final output string for a matched student, dynamically appending
      * only the fields the user explicitly searched for.
      */
     private String formatStudentDetails(int index, Student student) {
@@ -153,7 +153,7 @@ public class SearchCommand implements Command {
     }
 
     /**
-     * Retrieves a formatted string of matching modules (e.g., "CS2113: A | CS2040: B+"), 
+     * Retrieves a formatted string of matching modules (e.g., "CS2113: A | CS2040: B+"),
      * or null if no modules match the search query.
      */
     private String getMatchingModulesString(Student student) {

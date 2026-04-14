@@ -1,3 +1,0 @@
-John Doe/91234567/john@nus.edu.sg/123 Orchard Road #12-34/Computer Science/[MA1511/B+/2, EG1311/C/13]
-Jane T/97654321/janet@gmail.com/654 Clementi Ave 5 #02-22/Economics/[]
-Bob-Lee/92345679/bob.lee+test@mail.com/Blk 123, Bedok North Rd #01-01/Engineering/[CS1231/A/4]

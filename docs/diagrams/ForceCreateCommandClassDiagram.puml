@@ -1,0 +1,78 @@
+@startuml ForceCreateCommandClassDiagram
+skinparam classAttributeIconSize 0
+skinparam style strictuml
+
+interface Command <<interface>> {
+    +execute(db : StudentDatabase, storage : Storage) : CommandResult
+    +undo(db : StudentDatabase, storage : Storage) : CommandResult
+    +isUndoable() : boolean
+}
+
+class ForceCreateCommand implements Command {
+    -inner : CreateCommand
+    +ForceCreateCommand(name : String, phone : String, email : String, address : String, course : String)
+    +execute(db : StudentDatabase, storage : Storage) : CommandResult
+    +undo(db : StudentDatabase, storage : Storage) : CommandResult
+    +isUndoable() : boolean
+}
+
+class CreateCommand implements Command {
+    -name : String
+    -phone : String
+    -email : String
+    -address : String
+    -course : String
+    -createdIndex : int
+    +CreateCommand(name : String, phone : String, email : String, address : String, course : String)
+    +execute(db : StudentDatabase, storage : Storage) : CommandResult
+    ~doCreate(db : StudentDatabase, storage : Storage) : CommandResult
+    +undo(db : StudentDatabase, storage : Storage) : CommandResult
+    +isUndoable() : boolean
+}
+
+class StudentDatabase {
+    +addStudent(student : Student) : void
+    +removeStudent(index : int) : Student
+    +getStudentCount() : int
+}
+
+class Storage {
+    +saveStudentList(db : StudentDatabase) : void
+}
+
+class "Student.Builder" as StudentBuilder {
+    +Builder(name : String)
+    +phone(phone : String) : Builder
+    +email(email : String) : Builder
+    +address(address : String) : Builder
+    +course(course : String) : Builder
+    +build() : Student
+}
+
+class Student {
+    +getName() : String
+}
+
+class CommandResult {
+    -message : String
+    -exit : boolean
+    -pendingCommand : Command
+    +getMessage() : String
+    +shouldExit() : boolean
+}
+
+' ForceCreateCommand creates its own inner CreateCommand
+ForceCreateCommand ..> CreateCommand : <<create>>
+
+' ForceCreateCommand delegates to inner — shown via the association
+ForceCreateCommand "1" --> "1" CreateCommand : inner
+
+' CreateCommand's dependencies (called via delegation)
+CreateCommand ..> StudentDatabase
+CreateCommand ..> Storage
+CreateCommand ..> StudentBuilder : <<create>>
+CreateCommand ..> CommandResult : <<create>>
+
+StudentBuilder ..> Student : <<create>>
+
+@enduml
