@@ -5,18 +5,17 @@ pushd %~dp0
 cd ..
 call gradlew clean shadowJar
 
-cd text-ui-test
+if exist "DextroStudentList.txt" rmdir /s /q data
 
-REM Clean up data from previous test runs
-if exist "data" rmdir /s /q data
-
-REM Find the jar file in the build directory
-for /f "tokens=*" %%a in ('dir /b ..\build\libs\*.jar') do (
+cd build\libs
+for /f "tokens=*" %%a in (
+    'dir /b *.jar'
+) do (
     set jarloc=%%a
 )
 
-REM Run the program from within the text-ui-test directory
-java -jar ..\build\libs\%jarloc% < input.txt > ACTUAL.TXT
+java -jar %jarloc% < ..\..\text-ui-test\input.txt > ..\..\text-ui-test\ACTUAL.TXT
 
-REM Compare the output
+cd ..\..\text-ui-test
+
 FC ACTUAL.TXT EXPECTED.TXT >NUL && ECHO Test passed! || Echo Test failed!
